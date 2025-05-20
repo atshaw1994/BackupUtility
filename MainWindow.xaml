@@ -14,6 +14,9 @@
         Background="Transparent"
         WindowStyle="None"
         StateChanged="Window_StateChanged">
+    <Window.DataContext>
+        <vm:MainWindowViewModel/>
+    </Window.DataContext>
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32" ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
     </WindowChrome.WindowChrome>
@@ -55,7 +58,7 @@
                               Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
                               StrokeThickness="1" />
                     </Button>
-                    <Button Name="maximizeButton" Grid.Column="3" Click="OnMaximizeRestoreButtonClick" Style="{DynamicResource CaptionBar.CloseButton}">
+                    <Button Name="maximizeButton" Grid.Column="3" Click="OnMaximizeRestoreButtonClick" Style="{DynamicResource CaptionBar.Button}">
                         <Path Width="12" Height="12" Data="M 2,2 v8 h8 v-8z"
                               Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
                               StrokeThickness="1" />

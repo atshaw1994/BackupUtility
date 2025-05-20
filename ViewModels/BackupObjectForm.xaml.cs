@@ -20,6 +20,8 @@ namespace BackupUtility.ViewModels
         {
             InitializeComponent();
             BackupObjectResult = backupObject;
+            SourceButton.Content = FormatPath(BackupObjectResult.Source);
+            DestinationTextBox.Text = BackupObjectResult.Destination;
         }
 
         public BackupObjectForm(string source, string destination)

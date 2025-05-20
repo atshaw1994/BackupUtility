@@ -29,8 +29,7 @@ namespace BackupUtility
         public MainWindow()
         {
             InitializeComponent();
-            ViewModel = new MainWindowViewModel();
-            DataContext = ViewModel;
+            ViewModel = (MainWindowViewModel)DataContext;
             _trayIcon = new NotifyIcon
             {
                 Icon = new Icon("Backup.ico", 40, 40),
