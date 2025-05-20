@@ -114,7 +114,7 @@
                               StrokeThickness="1" Data="M7,11 h8 M11,7 v8" Width="22" Height="22" Margin="-1"/>
                     </Button>
                 </Grid>
-                <Grid x:Name="ProcedureControlsBar">
+                <Grid x:Name="ProcedureControls">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition/>
@@ -151,7 +151,13 @@
                             HorizontalAlignment="Right"
                             Visibility="{Binding !IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
                             Command="{Binding StartBackupCommand}">
-                        <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xE768;" FontSize="20" VerticalAlignment="Center"/>
+                        <Grid>
+                            <Path Stroke="{DynamicResource Element.Foreground.Normal}" StrokeThickness="3" 
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                  Fill="{DynamicResource Element.Foreground.Normal}"
+                                  Width="18" Height="18"
+                                  Data="M3.9,2.7 l11.3,6.3 l-11.3,6.2z"/>
+                        </Grid>
                     </Button>
                 </Grid>
             </StackPanel>
