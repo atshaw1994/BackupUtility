@@ -7,6 +7,7 @@
         xmlns:vm="clr-namespace:BackupUtility.ViewModels"
         xmlns:converters="clr-namespace:BackupUtility.Converters"
         mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
         Title="BackupUtility"
         Icon="/Backup.ico"
         Width="460"

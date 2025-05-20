@@ -5,14 +5,59 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BackupUtility.ViewModels"
         mc:Ignorable="d"
-        Title="Backup Object" SizeToContent="WidthAndHeight"
-        Background="{DynamicResource Window.Background}">
-    <StackPanel Margin="8">
-        <Button x:Name="SourceButton" Content="Source..." Click="SourceButton_Click"/>
-        <StackPanel Orientation="Horizontal" Margin="0,8">
-            <Label Content="Destination Folder:" Foreground="{DynamicResource Window.Foreground}"/>
-            <TextBox x:Name="DestinationTextBox" Width="150"/>
+        WindowStyle="None"
+        WindowStartupLocation="CenterScreen"
+        Title="Backup Object"
+        Width="300"
+        SizeToContent="Height"
+        Background="Transparent">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="32" ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
+    </WindowChrome.WindowChrome>
+    <Border Background="{DynamicResource Window.Background}" 
+            BorderBrush="{DynamicResource Window.Border}" 
+            BorderThickness="1"
+            CornerRadius="8">
+        <StackPanel>
+            <Grid x:Name="CaptionBar" Margin="4,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="24"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="32"/>
+                    <ColumnDefinition Width="32"/>
+                </Grid.ColumnDefinitions>
+                <Image Grid.Column="0" Width="18" Height="18" Source="/Backup.ico" />
+                <TextBlock Grid.Column="1" Margin="4,0,0,0" VerticalAlignment="Center" FontSize="14"
+                           Foreground="{DynamicResource CaptionBar.Foreground}"
+                           Text="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Title}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsActive, RelativeSource={RelativeSource AncestorType=Window}}" Value="False">
+                                    <Setter Property="Foreground" Value="#818181" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <Button Grid.Column="3" Click="OnCloseButtonClick" Style="{DynamicResource CaptionBar.CloseButton}">
+                    <Path Width="12" Height="12" Data="M 2,2 l8,8 M 10,2 l-8,8"
+                          Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                          StrokeThickness="1" />
+                </Button>
+            </Grid>
+            <StackPanel x:Name="ContentArea" Margin="8">
+                <Button x:Name="SourceButton" Content="Source..." Click="SourceButton_Click"/>
+                <Grid x:Name="DestinationGrid" Margin="0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="Destination Folder:" Foreground="{DynamicResource Window.Foreground}"/>
+                    <TextBox Grid.Column="1" x:Name="DestinationTextBox"/>
+                </Grid>
+                <Button Content="Save" Padding="8" HorizontalAlignment="Right" Click="SaveButton_Click"/>
+            </StackPanel>
         </StackPanel>
-        <Button Content="Save" Padding="8" HorizontalAlignment="Right" Click="SaveButton_Click"/>
-    </StackPanel>
+    </Border>
 </Window>
