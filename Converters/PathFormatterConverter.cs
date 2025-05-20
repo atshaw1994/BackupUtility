@@ -23,7 +23,5 @@ namespace BackupUtility.Converters
             // ConvertBack is not needed for display-only formatting
             throw new NotImplementedException();
         }
-
     }
-
 }

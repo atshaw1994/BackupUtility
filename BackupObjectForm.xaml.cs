@@ -178,7 +178,7 @@ namespace BackupUtility
             Close();
         }
 
-        private static string FormatPath(string path)
+        private string FormatPath(string path)
         {
             if (string.IsNullOrEmpty(path)) return "";
 

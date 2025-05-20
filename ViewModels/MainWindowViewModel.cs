@@ -76,10 +76,8 @@ namespace BackupUtility.ViewModels
             CancelBackupCommand = new RelayCommand(CancelBackup, (parameter) => IsBackupInProgress);
             AddSourceCommand = new RelayCommand(AddBackupObjectAsync);
             RemoveSourceCommand = new RelayCommand(RemoveBackupObjecAsync);
-            BackupObjects = []; // Initialize as ObservableCollection directly
+            BackupObjects = [];
             Task.Run(LoadBackupObjectsAsync).Wait();
-            // TODO: Instantiate BackupDrive based on setting in file
-
             _statusMessage = "";
             IsBackupInProgress = false;
             _backupProgress = 0;
@@ -133,14 +131,12 @@ namespace BackupUtility.ViewModels
                         if (Directory.Exists(backupObject.Source))
                         {
                             string destinationPath = Path.Combine(backupObject.Destination, new DirectoryInfo(backupObject.Source).Name);
-                            CopyChanges(backupObject.Source, backupObject.Destination, cancellationToken, new Progress<int>(p =>
+                            CopyChanges(backupObject.Source, $"{backupDestination}\\{backupObject.Destination}\\", cancellationToken, new Progress<int>(p =>
                             {
                                 // Calculate overall progress
                                 long folderFiles = Directory.GetFiles(backupObject.Source, "*.*", SearchOption.AllDirectories).Length;
                                 if (totalFiles > 0 && folderFiles > 0)
-                                {
                                     BackupProgress = (int)((double)processedFiles / totalFiles * 100);
-                                }
                                 // Optionally update StatusMessage with more detail
                             }), ref processedFiles);
                         }

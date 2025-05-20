@@ -270,7 +270,10 @@ namespace BackupUtility
             }
             foreach (string drive in BackupDriveSelection.Items)
                 if (drive.Contains(Properties.Settings.Default.BackupDriveLetter))
+                {
                     BackupDriveSelection.SelectedIndex = BackupDriveSelection.Items.IndexOf(drive);
+                    ViewModel.BackupDrive = drives[BackupDriveSelection.SelectedIndex];
+                }
         }
 
         private void BackupObjectsListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
