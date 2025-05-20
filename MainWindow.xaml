@@ -28,7 +28,7 @@
     <Border Background="{DynamicResource Window.Background}" 
             BorderBrush="{DynamicResource Window.Border}" 
             BorderThickness="1"
-            CornerRadius="8,8,0,0">
+            CornerRadius="8">
         <Grid x:Name="baseGrid">
             <StackPanel>
                 <Grid x:Name="CaptionBar" Margin="4,0">
