@@ -8,6 +8,8 @@
         xmlns:converters="clr-namespace:BackupUtility.Converters"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="ClearType"
         Title="BackupUtility"
         Icon="/Backup.ico"
         Width="460"
@@ -106,12 +108,10 @@
                             IsEnabled="{Binding ElementName=BackupObjectsListView, Path=SelectedItem, Converter={StaticResource NullToBoolConverter}}" 
                             Command="{Binding RemoveSourceCommand}" 
                             CommandParameter="{Binding ElementName=BackupObjectsListView, Path=SelectedItem}">
-                        <Path Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" 
-                              StrokeThickness="1" Data="M7,11 h8" Width="22" Height="22" Margin="-1"/>
+                        <TextBlock Text="&#xecc9;" FontSize="16" FontFamily="Segoe Fluent Icons"/>
                     </Button>
                     <Button x:Name="AddFolderButton" Grid.Column="2" Command="{Binding AddSourceCommand}">
-                        <Path Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                              StrokeThickness="1" Data="M7,11 h8 M11,7 v8" Width="22" Height="22" Margin="-1"/>
+                        <TextBlock Text="&#xecc8;" FontSize="16" FontFamily="Segoe Fluent Icons"/>
                     </Button>
                 </Grid>
                 <Grid x:Name="ProcedureControls">
@@ -151,13 +151,7 @@
                             HorizontalAlignment="Right"
                             Visibility="{Binding !IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
                             Command="{Binding StartBackupCommand}">
-                        <Grid>
-                            <Path Stroke="{DynamicResource Element.Foreground.Normal}" StrokeThickness="3" 
-                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
-                                  Fill="{DynamicResource Element.Foreground.Normal}"
-                                  Width="18" Height="18"
-                                  Data="M3.9,2.7 l11.3,6.3 l-11.3,6.2z"/>
-                        </Grid>
+                        <TextBlock Text="&#xedda;" FontSize="16" FontFamily="Segoe Fluent Icons"/>
                     </Button>
                 </Grid>
             </StackPanel>

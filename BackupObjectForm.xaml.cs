@@ -5,9 +5,8 @@ using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Windows;
 using System.Windows.Interop;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
-namespace BackupUtility.ViewModels
+namespace BackupUtility
 {
     /// <summary>
     /// Interaction logic for BackupObjectForm.xaml
