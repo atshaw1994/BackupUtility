@@ -1,22 +1,14 @@
 ﻿using BackupUtility.ViewModels;
 using System.IO;
 using System.Text.Json;
-using System.Threading;
 using System.Windows;
 
 namespace BackupUtility
 {
-    public class BackupObject : DependencyObject
+    public class BackupObject
     {
-        public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
-           "Source", typeof(string), typeof(BackupObject), new PropertyMetadata(string.Empty));
-        public static readonly DependencyProperty DestinationProperty = DependencyProperty.Register(
-           "Destination", typeof(string), typeof(BackupObject), new PropertyMetadata(string.Empty));
-
-        public string Source
-        { get => (string)GetValue(SourceProperty); set => SetValue(SourceProperty, value); }
-        public string Destination
-        { get => (string)GetValue(DestinationProperty); set => SetValue(DestinationProperty, value); }
+        public string Source { get; set; }
+        public string Destination { get; set; }
 
         public BackupObject()
         {
@@ -75,14 +67,14 @@ namespace BackupUtility
                 {
                     string jsonString = await File.ReadAllTextAsync(filePath);
                     var backupObjects = JsonSerializer.Deserialize<List<BackupObject>>(jsonString);
-                    return backupObjects ?? new List<BackupObject>();
+                    return backupObjects ?? [];
                 }
-                return new List<BackupObject>();
+                return [];
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error deserializing backup objects: {ex.Message}", "Deserialization Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return new List<BackupObject>();
+                return [];
             }
         }
     }

@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BackupUtility"
         xmlns:vm="clr-namespace:BackupUtility.ViewModels"
+        xmlns:converters="clr-namespace:BackupUtility.Converters"
         mc:Ignorable="d"
         Title="BackupUtility"
         Icon="/Backup.ico"
@@ -13,14 +14,12 @@
         Background="Transparent"
         WindowStyle="None"
         StateChanged="Window_StateChanged">
-    <Window.DataContext>
-        <vm:MainWindowViewModel/>
-    </Window.DataContext>
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32" ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
     </WindowChrome.WindowChrome>
     <Window.Resources>
         <local:NullToBoolConverter x:Key="NullToBoolConverter"/>
+        <converters:PathFormatterConverter x:Key="PathFormatter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </Window.Resources>
     <Border Background="{DynamicResource Window.Background}" 
@@ -79,11 +78,16 @@
                 <Label Content="Backup Objects" Foreground="{DynamicResource Window.Foreground}"/>
                 <ListView x:Name="BackupObjectsListView"
                           Margin="8,0"
-                          ItemsSource="{Binding Source=BackupObjects}"
+                          ItemsSource="{Binding BackupObjects}"
+                          DisplayMemberPath="Source"
                           MouseDoubleClick="BackupObjectsListView_MouseDoubleClick">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn DisplayMemberBinding="{Binding Path=Source}" Header="Source" Width="Auto"/>
+                            <GridViewColumn Header="Source" Width="Auto">
+                                <GridViewColumn.DisplayMemberBinding>
+                                    <Binding Path="Source" Converter="{StaticResource PathFormatter}" />
+                                </GridViewColumn.DisplayMemberBinding>
+                            </GridViewColumn>
                             <GridViewColumn DisplayMemberBinding="{Binding Path=Destination}" Header="Destination" Width="Auto"/>
                         </GridView>
                     </ListView.View>

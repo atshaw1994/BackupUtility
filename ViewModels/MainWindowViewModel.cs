@@ -1,16 +1,13 @@
-﻿using Microsoft.Win32;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
-using System.Threading;
 using System.Windows.Input;
 
 namespace BackupUtility.ViewModels
 {
     public class MainWindowViewModel : INotifyPropertyChanged
     {
-        public readonly ObservableCollection<BackupObject> BackupObjects;
+        public ObservableCollection<BackupObject> BackupObjects { get; set; }
         public DriveInfo _BackupDrive;
         public DriveInfo BackupDrive
         {
@@ -79,8 +76,8 @@ namespace BackupUtility.ViewModels
             CancelBackupCommand = new RelayCommand(CancelBackup, (parameter) => IsBackupInProgress);
             AddSourceCommand = new RelayCommand(AddBackupObjectAsync);
             RemoveSourceCommand = new RelayCommand(RemoveBackupObjecAsync);
-            BackupObjects = [];
-            LoadBackupObjects();
+            BackupObjects = []; // Initialize as ObservableCollection directly
+            Task.Run(LoadBackupObjectsAsync).Wait();
             // TODO: Instantiate BackupDrive based on setting in file
 
             _statusMessage = "";
@@ -88,14 +85,12 @@ namespace BackupUtility.ViewModels
             _backupProgress = 0;
         }
 
-        private void LoadBackupObjects()
+        private async void LoadBackupObjectsAsync()
         {
-            BackupObjects.Add(new("D:\\SteamLibrary\\steamapps\\common\\Railroad Tycoon 3\\Saved Games", "Railroad Tycoon 3 Saves"));
-            BackupObjects.Add(new("C:\\Users\\aaron\\source\\repos", "Visual Studio Projects"));
-            //string loadFilePath = "backup_objects.json";
-            //List<BackupObject> loadedBackupItems = await BackupObjectSerializer.DeserializeListFromFileAsync(loadFilePath);
-            //foreach (BackupObject backupObject in loadedBackupItems)
-            //    BackupObjects.Add(backupObject);
+            string loadFilePath = "backup_objects.json";
+            List<BackupObject> loadedBackupItems = await BackupObjectSerializer.DeserializeListFromFileAsync(loadFilePath);
+            foreach (BackupObject backupObject in loadedBackupItems)
+                BackupObjects.Add(backupObject);
         }
 
         protected virtual void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -272,6 +267,20 @@ namespace BackupUtility.ViewModels
                 }
             }
         }
-        
+
+        public string FormatPath(string path)
+        {
+            if (string.IsNullOrEmpty(path)) return "";
+
+            string[] parts = path.Split(System.IO.Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries);
+
+            if (parts.Length <= 3)
+                return path;
+
+            string firstPart = parts[0];
+            string lastPart = parts[^1];
+
+            return $"/{firstPart}/.../{lastPart}/";
+        }
     }
 }
