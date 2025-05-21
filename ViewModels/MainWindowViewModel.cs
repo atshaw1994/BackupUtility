@@ -94,11 +94,11 @@ namespace BackupUtility.ViewModels
 
         protected virtual void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        private void CancelBackup(object parameter = null!) => _backupCancellationTokenSource?.Cancel();
+        private void CancelBackup(object? parameter = null!) => _backupCancellationTokenSource?.Cancel();
 
-        private bool CanStartBackup(object parameter) => !IsBackupInProgress;
+        private bool CanStartBackup(object? parameter) => !IsBackupInProgress;
 
-        private async void PerformBackup(object parameter = null!)
+        private async void PerformBackup(object? parameter = null!)
         {
             if (!Directory.Exists($"{BackupDrive.RootDirectory}\\Logs\\"))
                 Directory.CreateDirectory($"{BackupDrive.RootDirectory}\\Logs\\");
@@ -178,7 +178,7 @@ namespace BackupUtility.ViewModels
             }
         }
 
-        private async void AddBackupObjectAsync(object parameter = null!)
+        private async void AddBackupObjectAsync(object? parameter = null!)
         {
             BackupObjectForm backupForm = new();
             if (backupForm.ShowDialog() == true)
@@ -190,7 +190,7 @@ namespace BackupUtility.ViewModels
             }
         }
 
-        private async void RemoveBackupObjecAsync(object parameter = null!)
+        private async void RemoveBackupObjecAsync(object? parameter = null!)
         {
             if (parameter is BackupObject bo_parameter)
                 BackupObjects.Remove(bo_parameter);
