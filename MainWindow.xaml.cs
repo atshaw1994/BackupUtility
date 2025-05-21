@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using BackupUtility.ViewModels;
+using Microsoft.Win32;
+using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -12,8 +14,6 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Threading;
-using BackupUtility.ViewModels;
-using Microsoft.Win32;
 
 namespace BackupUtility
 {
@@ -90,14 +90,17 @@ namespace BackupUtility
         #endregion
 
         #region Borderless Methods
-        [DllImport("user32.dll")]
-        private static extern nint MonitorFromWindow(IntPtr handle, uint flags);
 
-        [DllImport("user32.dll")]
-        private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
+        [LibraryImport("user32.dll")]
+        private static partial nint MonitorFromWindow(IntPtr handle, uint flags);
+
+        [LibraryImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static partial bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
 
         private const int WM_GETMINMAXINFO = 0x0024;
         private const uint MONITOR_DEFAULTTONEAREST = 0x00000002;
+
         [Serializable]
         [StructLayout(LayoutKind.Sequential)]
         public struct RECT(int left, int top, int right, int bottom)
@@ -107,6 +110,7 @@ namespace BackupUtility
             public int Right = right;
             public int Bottom = bottom;
         }
+
         [StructLayout(LayoutKind.Sequential)]
         public struct MONITORINFO
         {
@@ -115,6 +119,7 @@ namespace BackupUtility
             public RECT rcWork;
             public uint dwFlags;
         }
+
         [Serializable]
         [StructLayout(LayoutKind.Sequential)]
         public struct POINT(int x, int y)
@@ -122,6 +127,7 @@ namespace BackupUtility
             public int X = x;
             public int Y = y;
         }
+
         [StructLayout(LayoutKind.Sequential)]
         public struct MINMAXINFO
         {
@@ -131,6 +137,7 @@ namespace BackupUtility
             public POINT ptMinTrackSize;
             public POINT ptMaxTrackSize;
         }
+
         private void OnMinimizeButtonClick(object sender, RoutedEventArgs e)
             => WindowState = WindowState.Minimized;
 
@@ -169,11 +176,13 @@ namespace BackupUtility
             {
                 MINMAXINFO mmi = Marshal.PtrToStructure<MINMAXINFO>(lParam)!;
 
+                // These parameters are indeed used here in the call to MonitorFromWindow
                 nint monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
 
                 if (monitor != nint.Zero)
                 {
                     MONITORINFO monitorInfo = new() { cbSize = Marshal.SizeOf<MONITORINFO>() };
+                    // This parameter is indeed used here in the call to GetMonitorInfo
                     GetMonitorInfo(monitor, ref monitorInfo);
                     RECT rcWorkArea = monitorInfo.rcWork;
                     RECT rcMonitorArea = monitorInfo.rcMonitor;
