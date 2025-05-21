@@ -25,12 +25,14 @@ namespace BackupUtility
 
     public static class BackupObjectSerializer
     {
+        // Cache the JsonSerializerOptions instance
+        private static readonly JsonSerializerOptions _jsonSerializerOptions = new() { WriteIndented = true };
+
         public static async Task SerializeListToFileAsync(List<BackupObject> backupObjects, string filePath)
         {
             try
             {
-                var options = new JsonSerializerOptions { WriteIndented = true };
-                string jsonString = JsonSerializer.Serialize(backupObjects, options);
+                string jsonString = JsonSerializer.Serialize(backupObjects, _jsonSerializerOptions);
                 await File.WriteAllTextAsync(filePath, jsonString);
             }
             catch (Exception ex)
@@ -47,6 +49,7 @@ namespace BackupUtility
                 if (File.Exists(filePath))
                 {
                     string jsonString = await File.ReadAllTextAsync(filePath);
+                    // No options needed for deserialization unless you have specific converters or properties to ignore
                     var backupObjects = JsonSerializer.Deserialize<List<BackupObject>>(jsonString);
                     return backupObjects ?? [];
                 }
