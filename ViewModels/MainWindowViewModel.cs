@@ -78,6 +78,7 @@ namespace BackupUtility.ViewModels
             RemoveSourceCommand = new RelayCommand(RemoveBackupObjecAsync);
             BackupObjects = [];
             Task.Run(LoadBackupObjectsAsync).Wait();
+            _BackupDrive = new("C:");
             _statusMessage = "";
             IsBackupInProgress = false;
             _backupProgress = 0;
@@ -264,7 +265,7 @@ namespace BackupUtility.ViewModels
             }
         }
 
-        public string FormatPath(string path)
+        public static string FormatPath(string path)
         {
             if (string.IsNullOrEmpty(path)) return "";
 

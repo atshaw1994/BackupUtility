@@ -21,25 +21,6 @@ namespace BackupUtility
             Source = source;
             Destination = destination;
         }
-
-        public async void PerformBackup(MainWindowViewModel sender, CancellationToken cancellationToken)
-        {
-            try
-            {
-                await Task.Run(() =>
-                {
-                    if (Directory.Exists(Source))
-                    {
-
-                    }
-                }, cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                sender.StatusMessage = $"[ERR] Backup failed: {ex.Message}";
-                sender.BackupProgress = 0;
-            }
-        }
     }
 
     public static class BackupObjectSerializer
