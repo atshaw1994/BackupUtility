@@ -1,6 +1,4 @@
-﻿using BackupUtility.ViewModels;
-using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows.Data;
 
 namespace BackupUtility.Converters
