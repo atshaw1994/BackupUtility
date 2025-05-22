@@ -3,7 +3,7 @@ using System.Management;
 using System.Security.Principal;
 using Microsoft.Win32;
 
-namespace BackupUtility.Themes
+namespace BackupUtility.Views.Themes
 {
     public static class ThemeManager
     {

@@ -1,4 +1,5 @@
-﻿using BackupUtility.ViewModels;
+﻿using BackupUtility.Models;
+using BackupUtility.ViewModels;
 using Microsoft.Win32;
 using System.ComponentModel;
 using System.Drawing;
@@ -9,13 +10,12 @@ using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Threading;
 
-namespace BackupUtility
+namespace BackupUtility.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -94,7 +94,7 @@ namespace BackupUtility
         [LibraryImport("user32.dll")]
         private static partial nint MonitorFromWindow(IntPtr handle, uint flags);
 
-        [LibraryImport("user32.dll")]
+        [LibraryImport("user32.dll", EntryPoint = "GetMonitorInfoW")]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static partial bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
 
@@ -299,19 +299,6 @@ namespace BackupUtility
             ViewModel.BackupDrive = drives[BackupDriveSelection.SelectedIndex];
             Properties.Settings.Default.BackupDriveLetter = ViewModel.BackupDrive.Name[..2];
             Properties.Settings.Default.Save();
-        }
-    }
-
-    public class NullToBoolConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return value != null;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException(); // Typically not needed for IsEnabled binding
         }
     }
 }

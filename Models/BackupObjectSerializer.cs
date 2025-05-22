@@ -2,26 +2,8 @@
 using System.Text.Json;
 using System.Windows;
 
-namespace BackupUtility
+namespace BackupUtility.Models
 {
-    public class BackupObject
-    {
-        public string Source { get; set; }
-        public string Destination { get; set; }
-
-        public BackupObject()
-        {
-            Source = string.Empty;
-            Destination = string.Empty;
-        }
-
-        public BackupObject(string source, string destination)
-        {
-            Source = source;
-            Destination = destination;
-        }
-    }
-
     public static class BackupObjectSerializer
     {
         // Cache the JsonSerializerOptions instance

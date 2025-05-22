@@ -1,5 +1,5 @@
 ﻿using System.Windows;
-using BackupUtility.Themes;
+using BackupUtility.Views.Themes;
 
 namespace BackupUtility
 {
@@ -28,23 +28,23 @@ namespace BackupUtility
 
         private static void ApplyTheme(ThemeManager.WindowsTheme theme)
         {
-            var app = Application.Current;
+            Application app = Current;
             if (app == null || app.Resources == null) return;
 
             ResourceDictionary themeDictionary = [];
             switch (theme)
             {
                 case ThemeManager.WindowsTheme.Light:
-                    themeDictionary.Source = new Uri("Themes/Light.xaml", UriKind.Relative);
+                    themeDictionary.Source = new Uri("Views/Themes/Light.xaml", UriKind.Relative);
                     break;
                 case ThemeManager.WindowsTheme.Dark:
-                    themeDictionary.Source = new Uri("Themes/Dark.xaml", UriKind.Relative);
+                    themeDictionary.Source = new Uri("Views/Themes/Dark.xaml", UriKind.Relative);
                     break;
             }
 
             // Merge the theme dictionary
             var existingTheme = app.Resources.MergedDictionaries.FirstOrDefault(d =>
-                d.Source?.OriginalString.StartsWith("Themes/", StringComparison.OrdinalIgnoreCase) == true);
+                d.Source?.OriginalString.StartsWith("Views/Themes/", StringComparison.OrdinalIgnoreCase) == true);
             if (existingTheme != null)
             {
                 app.Resources.MergedDictionaries.Remove(existingTheme);

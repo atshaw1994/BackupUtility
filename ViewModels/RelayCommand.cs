@@ -1,6 +1,6 @@
 ﻿using System.Windows.Input;
 
-namespace BackupUtility
+namespace BackupUtility.ViewModels
 {
     public class RelayCommand(Action<object?> execute, Predicate<object?>? canExecute = null) : ICommand
     {

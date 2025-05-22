@@ -1,41 +1,51 @@
-﻿using Microsoft.Win32;
-using System.Globalization;
-using System.Management;
-using System.Runtime.InteropServices;
-using System.Security.Principal;
+﻿using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
+using System.Globalization;
+using System.Management;
+using System.Security.Principal;
+using Microsoft.Win32;
 
-namespace BackupUtility
+using BackupUtility.Models;
+using BackupUtility.ViewModels;
+
+namespace BackupUtility.Views
 {
     /// <summary>
     /// Interaction logic for BackupObjectForm.xaml
     /// </summary>
     public partial class BackupObjectForm : Window
     {
-        public BackupObject BackupObjectResult { get; private set; }
+        public BackupObject BackupObjectResult
+        {
+            get => (DataContext as BackupObjectFormViewModel)?.CurrentBackupObject!;
+        }
 
         public BackupObjectForm()
         {
             InitializeComponent();
-            BackupObjectResult = new();
+            var viewModel = new BackupObjectFormViewModel();
+            DataContext = viewModel;
+            SetupViewModelEvents(viewModel);
         }
 
         public BackupObjectForm(BackupObject backupObject)
         {
             InitializeComponent();
-            BackupObjectResult = backupObject;
-            SourceButton.Content = FormatPath(BackupObjectResult.Source);
-            DestinationTextBox.Text = BackupObjectResult.Destination;
+            var viewModel = new BackupObjectFormViewModel(backupObject);
+            DataContext = viewModel;
+            SetupViewModelEvents(viewModel);
         }
 
-        public BackupObjectForm(string source, string destination)
+        public BackupObjectForm(string source, string destination) : this(new BackupObject(source, destination)) { }
+
+        private void SetupViewModelEvents(BackupObjectFormViewModel viewModel)
         {
-            InitializeComponent();
-            BackupObjectResult = new()
+            viewModel.RequestClose += () => Close();
+            viewModel.RequestSaveAndClose += () =>
             {
-                Source = source,
-                Destination = destination
+                DialogResult = true;
+                Close();
             };
         }
 
@@ -44,7 +54,7 @@ namespace BackupUtility
         [LibraryImport("user32.dll")]
         private static partial nint MonitorFromWindow(IntPtr handle, uint flags);
 
-        [LibraryImport("user32.dll")]
+        [LibraryImport("user32.dll", EntryPoint = "GetMonitorInfoW")]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static partial bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
 
@@ -88,9 +98,6 @@ namespace BackupUtility
             public POINT ptMaxTrackSize;
         }
 
-        private void OnCloseButtonClick(object sender, RoutedEventArgs e)
-            => Close();
-
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
@@ -102,14 +109,11 @@ namespace BackupUtility
             if (msg == WM_GETMINMAXINFO)
             {
                 MINMAXINFO mmi = Marshal.PtrToStructure<MINMAXINFO>(lParam)!;
-
-                // These parameters are indeed used here in the call to MonitorFromWindow
                 nint monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
 
                 if (monitor != nint.Zero)
                 {
                     MONITORINFO monitorInfo = new() { cbSize = Marshal.SizeOf<MONITORINFO>() };
-                    // This parameter is indeed used here in the call to GetMonitorInfo
                     GetMonitorInfo(monitor, ref monitorInfo);
                     RECT rcWorkArea = monitorInfo.rcWork;
                     RECT rcMonitorArea = monitorInfo.rcMonitor;
@@ -132,6 +136,8 @@ namespace BackupUtility
 
         public static void WatchTheme()
         {
+            // You might want to move this to your App.xaml.cs or a separate ThemeManager class
+            // if you intend for the entire application to react to theme changes.
             var currentUser = WindowsIdentity.GetCurrent();
             string query = string.Format(
                 CultureInfo.InvariantCulture,
@@ -146,16 +152,16 @@ namespace BackupUtility
                 watcher.EventArrived += (sender, args) =>
                 {
                     WindowsTheme newWindowsTheme = GetWindowsTheme();
+                    // You would typically apply the new theme to your application resources here
+                    // For example: if (newWindowsTheme == WindowsTheme.Dark) Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("Themes/DarkTheme.xaml", UriKind.Relative) });
                 };
-
                 watcher.Start();
             }
             catch (Exception)
             {
                 // This can fail on Windows 7
             }
-
-            WindowsTheme initialTheme = GetWindowsTheme();
+            // WindowsTheme initialTheme = GetWindowsTheme(); // Initial theme setting
         }
 
         private static WindowsTheme GetWindowsTheme()
@@ -169,37 +175,5 @@ namespace BackupUtility
             return registryValue > 0 ? WindowsTheme.Light : WindowsTheme.Dark;
         }
         #endregion
-
-        private void SourceButton_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFolderDialog ofd = new();
-            if (ofd.ShowDialog() == true)
-            {
-                BackupObjectResult.Source = ofd.FolderName;
-                SourceButton.Content = FormatPath(BackupObjectResult.Source);
-            }
-        }
-
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
-        {
-            BackupObjectResult.Destination = DestinationTextBox.Text;
-            DialogResult = true;
-            Close();
-        }
-
-        private static string FormatPath(string path)
-        {
-            if (string.IsNullOrEmpty(path)) return "";
-
-            string[] parts = path.Split(System.IO.Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries);
-
-            if (parts.Length <= 3)
-                return path;
-
-            string firstPart = parts[0];
-            string lastPart = parts[^1];
-
-            return $"/{firstPart}/.../{lastPart}/";
-        }
     }
 }
