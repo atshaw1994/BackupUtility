@@ -249,4 +249,99 @@
         </Setter>
     </Style>
 
+    <ControlTemplate TargetType="ToggleButton" x:Key="ComboBoxToggleButtonTemplate">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="20" />
+            </Grid.ColumnDefinitions>
+            <Border Name="Border" Grid.ColumnSpan="2" 
+                    Background="{DynamicResource Element.Background.Normal}"
+                    BorderBrush="{DynamicResource Element.Border.Normal}" 
+                    BorderThickness="1" CornerRadius="3"  />
+            <Border Name="ButtonBorder" Grid.Column="1" Margin="1" 
+                    BorderThickness="0" CornerRadius="3" 
+                    Background="{DynamicResource Element.Background.Normal}" />
+            <Path Name="Arrow" Grid.Column="1" Data="M0,0 L4,4 L8,0 h-8 z" 
+                  StrokeLineJoin="Round" StrokeEndLineCap="Round" StrokeStartLineCap="Round"
+                  Stroke="{DynamicResource Element.Foreground.Normal}" StrokeThickness="1"
+                  Fill="{DynamicResource Element.Foreground.Normal}"
+                  HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="UIElement.IsMouseOver" Value="True">
+                <Setter Property="Panel.Background" TargetName="Border" 
+                        Value="{DynamicResource Element.Background.MouseOver}"/>
+                <Setter Property="Panel.Background" TargetName="ButtonBorder" 
+                        Value="{DynamicResource Element.Background.MouseOver}"/>
+            </Trigger>
+            <Trigger Property="ToggleButton.IsChecked" Value="True">
+                <Setter Property="Panel.Background" 
+                        TargetName="Border" 
+                        Value="{DynamicResource Element.Background.Pressed}"/>
+                <Setter Property="Panel.Background" 
+                        TargetName="ButtonBorder" 
+                        Value="{DynamicResource Element.Background.Pressed}"/>
+                <Setter Property="Shape.Fill" 
+                        TargetName="Arrow" 
+                        Value="{DynamicResource Element.Foreground.Pressed}"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="{x:Type ComboBox}"  TargetType="{x:Type ComboBox}">
+        <Setter Property="UIElement.SnapsToDevicePixels" Value="True"/>
+        <Setter Property="FrameworkElement.OverridesDefaultStyle" Value="True"/>
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource  Element.Foreground.Normal}"/>
+        <Setter Property="FrameworkElement.FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <!-- Popup showing items -->
+                        <Popup Name="Popup" Placement="Bottom" Focusable="False" 
+                               AllowsTransparency="True"
+                               IsOpen="{TemplateBinding ComboBox.IsDropDownOpen}"
+                               PopupAnimation="Slide">
+                            <Grid Name="DropDown" SnapsToDevicePixels="True"
+                                  MinWidth="{TemplateBinding FrameworkElement.ActualWidth}"
+                                  MaxHeight="{TemplateBinding ComboBox.MaxDropDownHeight}">
+                                <Border Name="DropDownBorder" Margin="0, 1, 0, 0"
+                                        Background="{DynamicResource Element.Background.MouseOver}"
+                                        BorderBrush="{DynamicResource Element.Border.Normal}" 
+                                        BorderThickness="1" CornerRadius="3"/>
+                                <ScrollViewer Margin="4" SnapsToDevicePixels="True">
+                                    <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
+                                </ScrollViewer>
+                            </Grid>
+                        </Popup>
+                        
+                        <ToggleButton Name="ToggleButton" Grid.Column="2"
+                                      ClickMode="Press" Focusable="False"
+                                      IsChecked="{Binding Path=IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                      Template="{DynamicResource ComboBoxToggleButtonTemplate}"/>
+
+                        <ContentPresenter Name="ContentSite" Margin="5, 3, 23, 3" IsHitTestVisible="False"
+                                          HorizontalAlignment="Left" VerticalAlignment="Center"                              
+                                          Content="{TemplateBinding ComboBox.SelectionBoxItem}" 
+                                          ContentTemplate="{TemplateBinding ComboBox.SelectionBoxItemTemplate}"
+                                          ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"/>
+                        
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="ItemsControl.HasItems" Value="False">
+                            <Setter Property="FrameworkElement.MinHeight" TargetName="DropDownBorder" Value="95"/>
+                        </Trigger>
+                        <Trigger Property="ItemsControl.IsGrouping" Value="True">
+                            <Setter Property="ScrollViewer.CanContentScroll" Value="False"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>
