@@ -152,24 +152,21 @@
 
     <Style x:Key="CaptionBar.Button" TargetType="Button">
         <Setter Property="Background" Value="{DynamicResource CaptionBar.Button.Background.Normal}" />
+        <Setter Property="BorderBrush" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource CaptionBar.Button.Foreground.Normal}" />
+        <Setter Property="BorderThickness" Value="0" />
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
         <Setter Property="IsTabStop" Value="False" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="BorderBrush" Value="Transparent"/>
-        <Setter Property="Padding" Value="0" />
-        <Setter Property="Margin" Value="0,2" />
-        <Setter Property="Width" Value="28"/>
-        <Setter Property="Height" Value="24"/>
+        <Setter Property="Width" Value="46"/>
+        <Setter Property="Height" Value="32"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="3">
+                            BorderThickness="{TemplateBinding BorderThickness}">
                         <ContentPresenter Margin="{TemplateBinding Padding}"
                                           HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
@@ -195,24 +192,22 @@
 
     <Style x:Key="CaptionBar.CloseButton" TargetType="Button">
         <Setter Property="Background" Value="{DynamicResource CaptionBar.Button.Background.Normal}" />
+        <Setter Property="BorderBrush" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource CaptionBar.Button.Foreground.Normal}" />
+        <Setter Property="BorderThickness" Value="0" />
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
         <Setter Property="IsTabStop" Value="False" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="BorderBrush" Value="Transparent"/>
-        <Setter Property="Padding" Value="0" />
-        <Setter Property="Margin" Value="0,2" />
-        <Setter Property="Width" Value="28"/>
-        <Setter Property="Height" Value="24"/>
+        <Setter Property="Width" Value="46"/>
+        <Setter Property="Height" Value="32"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="3">
+                            CornerRadius="0,7.5,0,0">
                         <ContentPresenter Margin="{TemplateBinding Padding}"
                                           HorizontalAlignment="Center"
                                           VerticalAlignment="Center"

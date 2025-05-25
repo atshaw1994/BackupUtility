@@ -27,12 +27,11 @@
             BorderThickness="1"
             CornerRadius="8">
         <StackPanel>
-            <Grid x:Name="CaptionBar" Margin="4,0">
+            <Grid x:Name="CaptionBar" Margin="4,0,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="24"/>
                     <ColumnDefinition/>
-                    <ColumnDefinition Width="32"/>
-                    <ColumnDefinition Width="32"/>
+                    <ColumnDefinition Width="46"/>
                 </Grid.ColumnDefinitions>
                 <Image Grid.Column="0" Width="18" Height="18" Source="/Backup.ico" />
                 <TextBlock Grid.Column="1" Margin="4,0,0,0" VerticalAlignment="Center" FontSize="14"
@@ -48,7 +47,7 @@
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
-                <Button Grid.Column="3" Command="{Binding CloseCommand}" Style="{DynamicResource CaptionBar.CloseButton}">
+                <Button Grid.Column="2" Command="{Binding CloseCommand}" Style="{DynamicResource CaptionBar.CloseButton}">
                     <Path Width="12" Height="12" Data="M 2,2 l8,8 M 10,2 l-8,8"
                           Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
                           StrokeThickness="1" />

@@ -34,13 +34,13 @@
             CornerRadius="8">
         <Grid x:Name="baseGrid">
             <StackPanel>
-                <Grid x:Name="CaptionBar" Margin="4,0">
+                <Grid x:Name="CaptionBar" Margin="4,0,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="24"/>
                         <ColumnDefinition/>
-                        <ColumnDefinition Width="32"/>
-                        <ColumnDefinition Width="32"/>
-                        <ColumnDefinition Width="32"/>
+                        <ColumnDefinition Width="46"/>
+                        <ColumnDefinition Width="46"/>
+                        <ColumnDefinition Width="46"/>
                     </Grid.ColumnDefinitions>
                     <Image Grid.Column="0" Width="18" Height="18" Source="/Backup.ico" />
                     <TextBlock Grid.Column="1" Margin="4,0,0,0" VerticalAlignment="Center" FontSize="14"

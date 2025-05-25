@@ -12,6 +12,7 @@
     </RadialGradientBrush>
     <SolidColorBrush x:Key="CaptionBar.Background.Active" Color="#393c41"/>
     <SolidColorBrush x:Key="CaptionBar.Foreground" Color="#F1F1F1"/>
+    
     <SolidColorBrush x:Key="CaptionBar.Button.Background.Normal" Color="Transparent"/>
     <SolidColorBrush x:Key="CaptionBar.Button.Background.MouseOver" Color="#444444"/>
     <SolidColorBrush x:Key="CaptionBar.Button.Background.Pressed" Color="#3f3f3f"/>
