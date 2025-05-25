@@ -151,14 +151,14 @@
     </Style>
 
     <Style x:Key="CaptionBar.Button" TargetType="Button">
-        <Setter Property="Background" Value="{DynamicResource Element.Background.Normal}" />
-        <Setter Property="Foreground" Value="{DynamicResource Element.Foreground.Normal}" />
+        <Setter Property="Background" Value="{DynamicResource CaptionBar.Button.Background.Normal}" />
+        <Setter Property="Foreground" Value="{DynamicResource CaptionBar.Button.Foreground.Normal}" />
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
         <Setter Property="IsTabStop" Value="False" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="BorderBrush" Value="{DynamicResource Element.Border.Normal}"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
         <Setter Property="Padding" Value="0" />
         <Setter Property="Margin" Value="0,2" />
         <Setter Property="Width" Value="28"/>
@@ -169,22 +169,22 @@
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource Element.CornerRadius}">
+                            CornerRadius="3">
                         <ContentPresenter Margin="{TemplateBinding Padding}"
-                                      HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"
-                                      RecognizesAccessKey="True" />
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          RecognizesAccessKey="True" />
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="{DynamicResource Element.Background.MouseOver}" />
-                            <Setter Property="Foreground" Value="{DynamicResource Element.Foreground.MouseOver}" />
-                            <Setter Property="BorderBrush" Value="{DynamicResource Element.Border.MouseOver}"/>
+                            <Setter Property="Background" Value="{DynamicResource CaptionBar.Button.Background.MouseOver}" />
+                            <Setter Property="Foreground" Value="{DynamicResource CaptionBar.Button.Foreground.MouseOver}" />
+                            <Setter Property="BorderBrush" Value="{DynamicResource CaptionBar.Button.Border.MouseOver}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter Property="Background" Value="{DynamicResource Element.Background.Pressed}" />
-                            <Setter Property="Foreground" Value="{DynamicResource Element.Foreground.Pressed}" />
-                            <Setter Property="BorderBrush" Value="{DynamicResource Element.Border.Pressed}" />
+                            <Setter Property="Background" Value="{DynamicResource CaptionBar.Button.Background.Pressed}" />
+                            <Setter Property="Foreground" Value="{DynamicResource CaptionBar.Button.Foreground.Pressed}" />
+                            <Setter Property="BorderBrush" Value="{DynamicResource CaptionBar.Button.Border.Pressed}" />
                             <Setter Property="BorderThickness" Value="0" />
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -194,14 +194,14 @@
     </Style>
 
     <Style x:Key="CaptionBar.CloseButton" TargetType="Button">
-        <Setter Property="Background" Value="{DynamicResource Element.Background.Normal}" />
-        <Setter Property="Foreground" Value="{DynamicResource Element.Foreground.Normal}" />
+        <Setter Property="Background" Value="{DynamicResource CaptionBar.Button.Background.Normal}" />
+        <Setter Property="Foreground" Value="{DynamicResource CaptionBar.Button.Foreground.Normal}" />
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
         <Setter Property="IsTabStop" Value="False" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="BorderBrush" Value="{DynamicResource Element.Border.Normal}"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
         <Setter Property="Padding" Value="0" />
         <Setter Property="Margin" Value="0,2" />
         <Setter Property="Width" Value="28"/>
@@ -212,11 +212,11 @@
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource Element.CornerRadius}">
+                            CornerRadius="3">
                         <ContentPresenter Margin="{TemplateBinding Padding}"
-                                  HorizontalAlignment="Center"
-                                  VerticalAlignment="Center"
-                                  RecognizesAccessKey="True" />
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          RecognizesAccessKey="True" />
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
@@ -447,5 +447,4 @@
         </Style.Triggers>
     </Style>
 
-    
 </ResourceDictionary>
