@@ -13,12 +13,11 @@
         SizeToContent="Height"
         TextOptions.TextFormattingMode="Display"
         TextOptions.TextRenderingMode="ClearType"
-        Background="Transparent">
-
+        Background="Transparent"
+        Loaded="Window_Loaded">
     <d:Window.DataContext>
         <viewmodels:BackupObjectFormViewModel />
     </d:Window.DataContext>
-
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32" ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
     </WindowChrome.WindowChrome>
@@ -54,14 +53,22 @@
                 </Button>
             </Grid>
             <StackPanel x:Name="ContentArea" Margin="8">
-                <Button x:Name="SourceButton" Content="{Binding FormattedSourcePath}" Command="{Binding SelectSourceCommand}"/>
-                <Grid x:Name="DestinationGrid" Margin="0,8">
+                <Grid x:Name="SourceGrid" Margin="0,8">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="74"/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <Label Content="Destination Folder:" Foreground="{DynamicResource Window.Foreground}"/>
-                    <TextBox Grid.Column="1" x:Name="DestinationTextBox" Text="{Binding DestinationPath, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Label Content="Source:" VerticalAlignment="Center" Foreground="{DynamicResource Window.Foreground}"/>
+                    <Button x:Name="SourceButton" Padding="8" Grid.Column="1" Content="{Binding FormattedSourcePath}" Command="{Binding SelectSourceCommand}"/>
+                </Grid>
+                <Grid x:Name="DestinationGrid" Margin="0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="74"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="Destination:" VerticalAlignment="Center" Foreground="{DynamicResource Window.Foreground}"/>
+                    <ComboBox Grid.Column="1" IsEditable="True" SelectedItem="{Binding DestinationPath}"/>
+                    <TextBox Padding="8" Grid.Column="1" Text="{Binding DestinationPath, UpdateSourceTrigger=PropertyChanged}"/>
                 </Grid>
                 <Button Padding="8" HorizontalAlignment="Right" Command="{Binding SaveCommand}">
                     <TextBlock Text="&#xe930;" FontSize="16" FontFamily="Segoe Fluent Icons"/>

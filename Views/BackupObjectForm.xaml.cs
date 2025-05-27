@@ -175,5 +175,10 @@ namespace BackupUtility.Views
             return registryValue > 0 ? WindowsTheme.Light : WindowsTheme.Dark;
         }
         #endregion
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

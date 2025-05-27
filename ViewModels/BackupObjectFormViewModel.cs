@@ -1,25 +1,22 @@
 ﻿using BackupUtility.Models;
 using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Windows.Input;
 
 namespace BackupUtility.ViewModels
 {
     public class BackupObjectFormViewModel : INotifyPropertyChanged
     {
+        // Fields
         private BackupObject _currentBackupObject;
         private string _formattedSourcePath;
+        private string _formattedDestinationPath;
         private string _destinationPath;
 
-        public event PropertyChangedEventHandler? PropertyChanged;
-
+        // Properties
         public BackupObject CurrentBackupObject
         {
             get => _currentBackupObject;
@@ -35,7 +32,6 @@ namespace BackupUtility.ViewModels
                 }
             }
         }
-
         public string FormattedSourcePath
         {
             get => _formattedSourcePath;
@@ -48,7 +44,6 @@ namespace BackupUtility.ViewModels
                 }
             }
         }
-
         public string DestinationPath
         {
             get => _destinationPath;
@@ -63,13 +58,27 @@ namespace BackupUtility.ViewModels
                 }
             }
         }
+        public string FormattedDestinationPath
+        {
+            get => _formattedDestinationPath;
+            set
+            {
+                if (_formattedDestinationPath != value)
+                {
+                    _formattedDestinationPath = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         // Commands
         public ICommand SelectSourceCommand { get; private set; }
+        public ICommand SelectDestinationCommand { get; private set; }
         public ICommand SaveCommand { get; private set; }
         public ICommand CloseCommand { get; private set; }
 
-        // Events for the View to subscribe to for window actions
+        // Events
         public event Action? RequestClose;
         public event Action? RequestSaveAndClose;
 
@@ -77,9 +86,11 @@ namespace BackupUtility.ViewModels
         {
             _currentBackupObject = new BackupObject();
             _formattedSourcePath = "Source...";
+            _formattedDestinationPath = "Destination...";
             _destinationPath = string.Empty;
 
             SelectSourceCommand = new RelayCommand(ExecuteSelectSource);
+            SelectDestinationCommand = new RelayCommand(ExecuteSelectDestination);
             SaveCommand = new RelayCommand(ExecuteSave, CanExecuteSave);
             CloseCommand = new RelayCommand(ExecuteClose);
         }
@@ -88,9 +99,11 @@ namespace BackupUtility.ViewModels
         {
             _currentBackupObject = backupObject ?? new BackupObject();
             _formattedSourcePath = FormatPath(_currentBackupObject.Source);
+            _formattedDestinationPath = FormatPath(_currentBackupObject.Destination);
             _destinationPath = _currentBackupObject.Destination;
 
             SelectSourceCommand = new RelayCommand(ExecuteSelectSource);
+            SelectDestinationCommand = new RelayCommand(ExecuteSelectDestination);
             SaveCommand = new RelayCommand(ExecuteSave, CanExecuteSave);
             CloseCommand = new RelayCommand(ExecuteClose);
         }
@@ -99,13 +112,10 @@ namespace BackupUtility.ViewModels
         {
             // TODO: Stop using OpenFileDialog to better align with WPF
 
-            OpenFileDialog openFileDialog = new()
+            OpenFolderDialog openFileDialog = new()
             {
                 ValidateNames = false,
-                CheckFileExists = false,
-                CheckPathExists = true,
-                FileName = "Folder Selection.", // Trick to make it select folders
-                Filter = "Folders|*.fake", // Provide a dummy filter
+                Multiselect = false,
                 Title = "Select Source Folder"
             };
 
@@ -113,19 +123,38 @@ namespace BackupUtility.ViewModels
 
             if (result == true)
             {
-                string selectedPath = Path.GetDirectoryName(openFileDialog.FileName)!;
-                if (!string.IsNullOrEmpty(selectedPath))
+                if (!string.IsNullOrEmpty(openFileDialog.FolderName))
                 {
-                    _currentBackupObject.Source = selectedPath;
-                    FormattedSourcePath = FormatPath(selectedPath);
+                    _currentBackupObject.Source = openFileDialog.FolderName;
+                    FormattedSourcePath = FormatPath(openFileDialog.FolderName);
+                    (SaveCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                }
+            }
+        }
+
+        private void ExecuteSelectDestination(object? parameter)
+        {
+            OpenFolderDialog openFileDialog = new()
+            {
+                ValidateNames = false,
+                Multiselect = false,
+                Title = "Select Source Folder"
+            };
+
+            bool? result = openFileDialog.ShowDialog();
+
+            if (result == true)
+            {
+                if (!string.IsNullOrEmpty(openFileDialog.FolderName))
+                {
+                    _currentBackupObject.Destination = openFileDialog.FolderName;
+                    FormattedDestinationPath = FormatPath(openFileDialog.FolderName);
                     (SaveCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 }
             }
         }
 
         private void ExecuteSave(object? parameter) =>
-            // _currentBackupObject.Destination is already updated by the TwoWay binding on DestinationPath
-            // Now, signal to the View to close and indicate success.
             RequestSaveAndClose?.Invoke();
 
         private bool CanExecuteSave(object? parameter) =>
@@ -146,9 +175,10 @@ namespace BackupUtility.ViewModels
             string firstPart = parts[0];
             string lastPart = parts[^1];
 
-            return $"/{firstPart}/.../{lastPart}/";
+            return $"{firstPart}\\...\\{lastPart}\\";
         }
 
-        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null) 
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
