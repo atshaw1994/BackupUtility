@@ -9,6 +9,32 @@
     <SolidColorBrush x:Key="CaptionBar.Background.Inactive" Color="#fff"/>
     <SolidColorBrush x:Key="CaptionBar.Foreground" Color="#000000"/>
 
+    <SolidColorBrush x:Key="CaptionBar.Button.Background.Normal" Color="Transparent"/>
+    <SolidColorBrush x:Key="CaptionBar.Button.Background.MouseOver" Color="#444444"/>
+    <SolidColorBrush x:Key="CaptionBar.Button.Background.Pressed" Color="#3f3f3f"/>
+    <SolidColorBrush x:Key="CaptionBar.Button.Background.Disabled" Color="#08ffffff"/>
+    <LinearGradientBrush x:Key="CaptionBar.Button.Border.Normal" StartPoint="0.5,0" EndPoint="0.5,1.0">
+        <GradientStop Color="#30ffffff" Offset="0.0"/>
+        <GradientStop Color="#05000000" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="CaptionBar.Button.Border.MouseOver" StartPoint="0.5,0" EndPoint="0.5,1.0">
+        <GradientStop Color="#3f4146" Offset="0.0"/>
+        <GradientStop Color="#3f4146" Offset="0.5"/>
+        <GradientStop Color="#313439" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="CaptionBar.Button.Border.Disabled" StartPoint="0.5,0" EndPoint="0.5,1.0">
+        <GradientStop Color="#10ffffff" Offset="0.0"/>
+        <GradientStop Color="#05000000" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="CaptionBar.Button.Border.Pressed" StartPoint="0.5,0" EndPoint="0.5,1.0">
+        <GradientStop Color="#30ffffff" Offset="0.0"/>
+        <GradientStop Color="#05000000" Offset="1.0"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="CaptionBar.Button.Foreground.Normal" Color="Black"/>
+    <SolidColorBrush x:Key="CaptionBar.Button.Foreground.MouseOver" Color="#F1F1F1"/>
+    <SolidColorBrush x:Key="CaptionBar.Button.Foreground.Pressed" Color="#F1F1F1"/>
+    <SolidColorBrush x:Key="CaptionBar.Button.Foreground.Disabled" Color="#606060"/>
+
     <SolidColorBrush x:Key="Element.Background.Normal" Color="#dddddd"/>
     <SolidColorBrush x:Key="Element.Background.MouseOver" Color="#bee6fd"/>
     <SolidColorBrush x:Key="Element.Background.Pressed" Color="#c4e5f6"/>
