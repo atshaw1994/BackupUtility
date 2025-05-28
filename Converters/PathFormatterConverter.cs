@@ -30,7 +30,7 @@ namespace BackupUtility.Converters
             string firstPart = parts[0];
             string lastPart = parts[^1];
 
-            return $"/{firstPart}/.../{lastPart}/";
+            return $"{firstPart}\\...\\{lastPart}";
         }
     }
 }

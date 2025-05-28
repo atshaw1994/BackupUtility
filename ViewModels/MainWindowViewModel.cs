@@ -69,14 +69,16 @@ namespace BackupUtility.ViewModels
         private CancellationTokenSource? _backupCancellationTokenSource;
         public ICommand StartBackupCommand { get; }
         public ICommand AddSourceCommand { get; }
+        public ICommand EditSourceCommand { get; }
         public ICommand RemoveSourceCommand { get; }
         public ICommand CancelBackupCommand { get; }
 
         public MainWindowViewModel()
         {
-            StartBackupCommand = new RelayCommand(PerformBackup, CanStartBackup);
+            StartBackupCommand = new RelayCommand(PerformBackupAsync, CanStartBackup);
             CancelBackupCommand = new RelayCommand(CancelBackup, (parameter) => IsBackupInProgress);
             AddSourceCommand = new RelayCommand(AddBackupObjectAsync);
+            EditSourceCommand = new RelayCommand(EditBackupObjectAsync);
             RemoveSourceCommand = new RelayCommand(RemoveBackupObjecAsync);
             BackupObjects = [];
             Task.Run(LoadBackupObjectsAsync).Wait();
@@ -100,7 +102,7 @@ namespace BackupUtility.ViewModels
 
         private bool CanStartBackup(object? parameter) => !IsBackupInProgress;
 
-        private async void PerformBackup(object? parameter = null!)
+        private async void PerformBackupAsync(object? parameter = null!)
         {
             if (!Directory.Exists($"{BackupDrive.RootDirectory}\\Logs\\"))
                 Directory.CreateDirectory($"{BackupDrive.RootDirectory}\\Logs\\");
@@ -180,7 +182,7 @@ namespace BackupUtility.ViewModels
             }
         }
 
-        private async void AddBackupObjectAsync(object? parameter = null!)
+        private async void AddBackupObjectAsync(object? parameter = null)
         {
             BackupObjectForm backupForm = new(BackupObjects);
             if (backupForm.ShowDialog() == true)
@@ -189,6 +191,22 @@ namespace BackupUtility.ViewModels
                 List<BackupObject> backupObjectList = [.. BackupObjects];
                 string saveFilePath = "backup_objects.json";
                 await BackupObjectSerializer.SerializeListToFileAsync(backupObjectList, saveFilePath);
+            }
+        }
+
+        private async void EditBackupObjectAsync(object? parameter = null!)
+        {
+            if (parameter is BackupObject backupObject)
+            {
+                BackupObjectForm backupForm = new(backupObject, BackupObjects);
+                if (backupForm.ShowDialog() == true)
+                {
+                    BackupObjects.Remove(backupObject);
+                    BackupObjects.Add(backupForm.BackupObjectResult);
+                    List<BackupObject> backupObjectList = [.. BackupObjects];
+                    string saveFilePath = "backup_objects.json";
+                    await BackupObjectSerializer.SerializeListToFileAsync(backupObjectList, saveFilePath);
+                }
             }
         }
 

@@ -287,11 +287,8 @@ namespace BackupUtility.Views
 
         private void BackupObjectsListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (BackupObjectsListView.SelectedItem is BackupObject selectedObject)
-            {
-                BackupObjectForm form = new(selectedObject, ViewModel.BackupObjects);
-                form.ShowDialog();
-            }
+            if (BackupObjectsListView.SelectedItem is BackupObject selectedBackupObject)
+                ViewModel.EditSourceCommand.Execute(selectedBackupObject);
         }
 
         private void BackupDriveSelection_SelectionChanged(object sender, SelectionChangedEventArgs e)
