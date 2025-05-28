@@ -347,7 +347,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border Background="{TemplateBinding Background}"
-                        CornerRadius="0,6,6,0">
+                        CornerRadius="0,2,2,0">
                         <TextBlock x:Name="Glyph" Text="&#xE711;"
                                FontFamily="Segoe Fluent Icons" 
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -395,7 +395,7 @@
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="6"
+                            CornerRadius="2"
                             Padding="0">
                         <Grid>
                             <Grid.ColumnDefinitions>
