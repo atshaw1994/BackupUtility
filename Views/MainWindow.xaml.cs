@@ -289,7 +289,7 @@ namespace BackupUtility.Views
         {
             if (BackupObjectsListView.SelectedItem is BackupObject selectedObject)
             {
-                BackupObjectForm form = new(selectedObject);
+                BackupObjectForm form = new(selectedObject, ViewModel.BackupObjects);
                 form.ShowDialog();
             }
         }

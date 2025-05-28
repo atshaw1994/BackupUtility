@@ -1,13 +1,14 @@
-﻿using System.Runtime.InteropServices;
-using System.Windows;
-using System.Windows.Interop;
+﻿using BackupUtility.Models;
+using BackupUtility.ViewModels;
+using Microsoft.Win32;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Management;
+using System.Runtime.InteropServices;
 using System.Security.Principal;
-using Microsoft.Win32;
-
-using BackupUtility.Models;
-using BackupUtility.ViewModels;
+using System.Windows;
+using System.Windows.Interop;
+using System.Linq;
 
 namespace BackupUtility.Views
 {
@@ -21,23 +22,25 @@ namespace BackupUtility.Views
             get => (DataContext as BackupObjectFormViewModel)?.CurrentBackupObject!;
         }
 
-        public BackupObjectForm()
+        public BackupObjectForm(ObservableCollection<BackupObject> backupObjects)
         {
             InitializeComponent();
             var viewModel = new BackupObjectFormViewModel();
             DataContext = viewModel;
             SetupViewModelEvents(viewModel);
+            foreach (var backupObject in backupObjects.Where(backupObject => !DestinationComboBox.Items.Contains(backupObject.Destination)))
+                DestinationComboBox.Items.Add(backupObject.Destination);
         }
 
-        public BackupObjectForm(BackupObject backupObject)
+        public BackupObjectForm(BackupObject BackupObject, ObservableCollection<BackupObject> backupObjects)
         {
             InitializeComponent();
-            var viewModel = new BackupObjectFormViewModel(backupObject);
+            var viewModel = new BackupObjectFormViewModel(BackupObject);
             DataContext = viewModel;
             SetupViewModelEvents(viewModel);
+            foreach (var backupObject in backupObjects.Where(backupObject => !DestinationComboBox.Items.Contains(backupObject.Destination)))
+                DestinationComboBox.Items.Add(backupObject.Destination);
         }
-
-        public BackupObjectForm(string source, string destination) : this(new BackupObject(source, destination)) { }
 
         private void SetupViewModelEvents(BackupObjectFormViewModel viewModel)
         {

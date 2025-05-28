@@ -13,8 +13,7 @@
         SizeToContent="Height"
         TextOptions.TextFormattingMode="Display"
         TextOptions.TextRenderingMode="ClearType"
-        Background="Transparent"
-        Loaded="Window_Loaded">
+        Background="Transparent">
     <d:Window.DataContext>
         <viewmodels:BackupObjectFormViewModel />
     </d:Window.DataContext>
@@ -67,8 +66,7 @@
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <Label Content="Destination:" VerticalAlignment="Center" Foreground="{DynamicResource Window.Foreground}"/>
-                    <ComboBox Grid.Column="1" IsEditable="True" SelectedItem="{Binding DestinationPath}"/>
-                    <TextBox Padding="8" Grid.Column="1" Text="{Binding DestinationPath, UpdateSourceTrigger=PropertyChanged}"/>
+                    <ComboBox x:Name="DestinationComboBox" Height="32" Grid.Column="1" IsEditable="True" SelectedItem="{Binding DestinationPath}"/>
                 </Grid>
                 <Button Padding="8" HorizontalAlignment="Right" Command="{Binding SaveCommand}">
                     <TextBlock Text="&#xe930;" FontSize="16" FontFamily="Segoe Fluent Icons"/>

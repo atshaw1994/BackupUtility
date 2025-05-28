@@ -182,7 +182,7 @@ namespace BackupUtility.ViewModels
 
         private async void AddBackupObjectAsync(object? parameter = null!)
         {
-            BackupObjectForm backupForm = new();
+            BackupObjectForm backupForm = new(BackupObjects);
             if (backupForm.ShowDialog() == true)
             {
                 BackupObjects.Add(backupForm.BackupObjectResult);
