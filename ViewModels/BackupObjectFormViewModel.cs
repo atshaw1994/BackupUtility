@@ -53,9 +53,9 @@ namespace BackupUtility.ViewModels
                 if (_destinationPath != value)
                 {
                     _destinationPath = value;
-                    _currentBackupObject.Destination = value; // Update model immediately on UI change
+                    _currentBackupObject.Destination = value;
                     OnPropertyChanged();
-                    (SaveCommand as RelayCommand)?.RaiseCanExecuteChanged(); // Re-evaluate Save button state
+                    (SaveCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 }
             }
         }
