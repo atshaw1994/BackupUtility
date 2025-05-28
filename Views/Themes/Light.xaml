@@ -37,7 +37,9 @@
 
     <SolidColorBrush x:Key="Element.Background.Normal" Color="#dddddd"/>
     <SolidColorBrush x:Key="Element.Background.MouseOver" Color="#bee6fd"/>
+    <Color x:Key="Element.Background.MouseOver.Color">#bee6fd</Color>
     <SolidColorBrush x:Key="Element.Background.Pressed" Color="#c4e5f6"/>
+    <Color x:Key="Element.Background.Pressed.Color">#c4e5f6</Color>
     <SolidColorBrush x:Key="Element.Background.Disabled" Color="#f4f4f4"/>
     <SolidColorBrush x:Key="Element.Border.Normal" Color="#707070"/>
     <SolidColorBrush x:Key="Element.Border.Disabled" Color="#adb2b5"/>

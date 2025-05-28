@@ -41,7 +41,9 @@
 
     <SolidColorBrush x:Key="Element.Background.Normal" Color="#383838"/>
     <SolidColorBrush x:Key="Element.Background.MouseOver" Color="#444444"/>
+    <Color x:Key="Element.Background.MouseOver.Color">#444444</Color>
     <SolidColorBrush x:Key="Element.Background.Pressed" Color="#3f3f3f"/>
+    <Color x:Key="Element.Background.Pressed.Color">#3f3f3f</Color>
     <SolidColorBrush x:Key="Element.Background.Disabled" Color="#08ffffff"/>
     <LinearGradientBrush x:Key="Element.Border.Normal" StartPoint="0.5,0" EndPoint="0.5,1.0">
         <GradientStop Color="#30ffffff" Offset="0.0"/>
