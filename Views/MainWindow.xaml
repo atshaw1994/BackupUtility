@@ -99,16 +99,6 @@
                         </GridView>
                     </ListView.View>
                 </ListView>
-                <Grid x:Name="AddBackupSourceButton" Margin="8,-1,8,8">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition Width="24"/>
-                    </Grid.ColumnDefinitions>
-                    <Button x:Name="AddFolderButton" Grid.Column="2"
-                            Command="{Binding AddSourceCommand}">
-                        <TextBlock Text="&#xecc8;" FontSize="16" FontFamily="Segoe Fluent Icons"/>
-                    </Button>
-                </Grid>
                 <Grid x:Name="ProcedureControls">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>

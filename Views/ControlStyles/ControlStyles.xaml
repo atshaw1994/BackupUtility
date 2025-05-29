@@ -466,9 +466,42 @@
         </Setter>
     </Style>
 
+    <Style x:Key="AddButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="{DynamicResource Element.Background.Normal}" />
+        <Setter Property="BorderBrush" Value="#30000000" />
+        <Setter Property="Foreground" Value="{DynamicResource Window.Foreground}" />
+        <Setter Property="BorderThickness" Value="2,0,2,2"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="0,0,3,3">
+                        <TextBlock x:Name="Glyph" Text="New Backup Object..."
+                                   FontStyle="Italic"
+                                   HorizontalAlignment="Center" 
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource Element.Background.MouseOver}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Element.Foreground.MouseOver}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource Element.Background.Pressed}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Element.Foreground.Pressed}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style TargetType="ListViewItem">
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="#F1F1F1"/>
+        <Setter Property="Foreground" Value="{DynamicResource Element.Foreground.Normal}"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Height" Value="32"/>
@@ -476,10 +509,10 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ListViewItem">
                     <Border Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="3"
-                            Padding="0">
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="3"
+                        Padding="0">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -499,20 +532,14 @@
                                        HorizontalAlignment="Left"/>
                             </Grid>
                             <StackPanel x:Name="ButtonPanel"
-                                    Orientation="Horizontal"
-                                    Opacity="0"
-                                    Grid.Column="1">
-                                <Button x:Name="EditButton" Style="{StaticResource EditButtonStyle}">
-                                    <Button.Command>
-                                        <Binding Path="DataContext.EditSourceCommand" RelativeSource="{RelativeSource AncestorType={x:Type ListView}}"/>
-                                    </Button.Command>
-                                    <Button.CommandParameter>
-                                        <Binding Path="."/>
-                                    </Button.CommandParameter>
-                                </Button>
+                                        Orientation="Horizontal"
+                                        Opacity="0"
+                                        Grid.Column="1">
+                                <Button x:Name="EditButton" Style="{StaticResource EditButtonStyle}"/>
                                 <Button x:Name="RemoveButton" Style="{StaticResource RemoveButtonStyle}">
                                     <Button.Command>
-                                        <Binding Path="DataContext.RemoveSourceCommand" RelativeSource="{RelativeSource AncestorType={x:Type ListView}}"/>
+                                        <Binding Path="DataContext.RemoveSourceCommand"
+                                             RelativeSource="{RelativeSource AncestorType={x:Type ListView}}"/>
                                     </Button.Command>
                                     <Button.CommandParameter>
                                         <Binding Path="."/>
@@ -565,6 +592,7 @@
     </Style>
 
     <Style x:Key="{x:Type ListView}" TargetType="ListView">
+        <Setter Property="Background" Value="{DynamicResource Element.Background.Normal}"/>
         <Setter Property="SnapsToDevicePixels" Value="true" />
         <Setter Property="OverridesDefaultStyle" Value="true" />
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
@@ -575,25 +603,80 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ListView">
-                    <Border Name="Border" 
-                        Background="#404040"
-                        BorderThickness="2"
-                        CornerRadius="3">
-                        <Border.BorderBrush>
-                            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1.0">
-                                <GradientStop Color="#30ffffff" Offset="0.0"/>
-                                <GradientStop Color="#30000000" Offset="1.0"/>
-                            </LinearGradientBrush>
-                        </Border.BorderBrush>
-                        <ScrollViewer Style="{DynamicResource {x:Static GridView.GridViewScrollViewerStyleKey}}">
-                            <ItemsPresenter />
-                        </ScrollViewer>
-                    </Border>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="32"/>
+                        </Grid.RowDefinitions>
+                        <Border Name="Border" 
+                            Background="{TemplateBinding Background}"
+                            BorderThickness="2,2,2,0"
+                            CornerRadius="3,3,0,0">
+                            <Border.BorderBrush>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1.0">
+                                    <GradientStop Color="#30ffffff" Offset="0.0"/>
+                                    <GradientStop Color="#30000000" Offset="1.0"/>
+                                </LinearGradientBrush>
+                            </Border.BorderBrush>
+                            <ScrollViewer Style="{DynamicResource {x:Static GridView.GridViewScrollViewerStyleKey}}">
+                                <ItemsPresenter />
+                            </ScrollViewer>
+                        </Border>
+                        <Button Grid.Row="1"
+                            Style="{DynamicResource AddButtonStyle}">
+                            <Button.Command>
+                                <Binding Path="DataContext.AddSourceCommand" 
+                                     RelativeSource="{RelativeSource AncestorType={x:Type ListView}}"/>
+                            </Button.Command>
+                        </Button>
+                    </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsGrouping" Value="true">
                             <Setter Property="ScrollViewer.CanContentScroll" Value="false" />
                         </Trigger>
                     </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="{x:Static GridView.GridViewScrollViewerStyleKey}" TargetType="ScrollViewer">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollViewer">
+                    <Grid Background="{TemplateBinding Background}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <DockPanel Margin="{TemplateBinding Padding}">
+                            <ScrollContentPresenter Name="PART_ScrollContentPresenter"
+                                                KeyboardNavigation.DirectionalNavigation="Local"
+                                                CanContentScroll="True"
+                                                CanHorizontallyScroll="False"
+                                                CanVerticallyScroll="False" />
+                        </DockPanel>
+
+                        <ScrollBar Name="PART_HorizontalScrollBar"
+                               Orientation="Horizontal"
+                               Grid.Row="1"
+                               Maximum="{TemplateBinding ScrollableWidth}"
+                               ViewportSize="{TemplateBinding ViewportWidth}"
+                               Value="{TemplateBinding HorizontalOffset}"
+                               Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}" />
+
+                        <ScrollBar Name="PART_VerticalScrollBar"
+                               Grid.Column="1"
+                               Maximum="{TemplateBinding ScrollableHeight}"
+                               ViewportSize="{TemplateBinding ViewportHeight}"
+                               Value="{TemplateBinding VerticalOffset}"
+                               Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" />
+
+                    </Grid>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

@@ -174,11 +174,14 @@ namespace BackupUtility.ViewModels
                 _backupCancellationTokenSource?.Dispose();
                 _backupCancellationTokenSource = null;
 
+                string logs_str = "";
                 foreach (string log in Logs)
-                    File.AppendAllText($"{BackupDrive.RootDirectory}\\Logs\\Log_{DateTime.Now:yyyyMMdd}.txt", log);
+                    logs_str += log + "\n";
 
-                foreach (string app in InstalledAppsFromRegistry.GetInstalledApps())
-                    File.AppendAllText($"{BackupDrive.RootDirectory}\\AppsList.txt", $"{app}\n");
+                //File.AppendAllText($"{BackupDrive.RootDirectory}\\Logs\\Log_{DateTime.Now:yyyyMMdd}.txt", logs_str);
+
+                //foreach (string app in InstalledAppsFromRegistry.GetInstalledApps())
+                //    File.AppendAllText($"{BackupDrive.RootDirectory}\\AppsList.txt", $"{app}\n");
             }
         }
 
