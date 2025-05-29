@@ -481,6 +481,7 @@
                         CornerRadius="0,0,3,3">
                         <TextBlock x:Name="Glyph" Text="New Backup Object..."
                                    FontStyle="Italic"
+                                   Opacity="0.25"
                                    HorizontalAlignment="Center" 
                                    VerticalAlignment="Center"/>
                     </Border>
@@ -488,6 +489,7 @@
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="Background" Value="{DynamicResource Element.Background.MouseOver}" />
                             <Setter Property="Foreground" Value="{DynamicResource Element.Foreground.MouseOver}" />
+                            <Setter Property="Opacity" TargetName="Glyph" Value="1"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter Property="Background" Value="{DynamicResource Element.Background.Pressed}" />
