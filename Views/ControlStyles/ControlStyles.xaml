@@ -467,18 +467,18 @@
     </Style>
 
     <Style x:Key="AddButtonStyle" TargetType="Button">
-        <Setter Property="Background" Value="{DynamicResource Element.Background.Normal}" />
-        <Setter Property="BorderBrush" Value="#30000000" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="Foreground" Value="{DynamicResource Window.Foreground}" />
-        <Setter Property="BorderThickness" Value="2,0,2,2"/>
+        <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border Background="{TemplateBinding Background}"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="0,0,3,3">
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="0,0,3,3">
                         <TextBlock x:Name="Glyph" Text="New Backup Object..."
                                    FontStyle="Italic"
                                    Opacity="0.25"
@@ -488,6 +488,14 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="Background" Value="{DynamicResource Element.Background.MouseOver}" />
+                            <Setter Property="BorderBrush">
+                                <Setter.Value>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#10ffffff"/>
+                                        <GradientStop Color="#10000000" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
                             <Setter Property="Foreground" Value="{DynamicResource Element.Foreground.MouseOver}" />
                             <Setter Property="Opacity" TargetName="Glyph" Value="1"/>
                         </Trigger>
@@ -513,7 +521,6 @@
                     <Border Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="3"
                         Padding="0">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -624,13 +631,17 @@
                                 <ItemsPresenter />
                             </ScrollViewer>
                         </Border>
-                        <Button Grid.Row="1"
-                            Style="{DynamicResource AddButtonStyle}">
-                            <Button.Command>
-                                <Binding Path="DataContext.AddSourceCommand" 
-                                     RelativeSource="{RelativeSource AncestorType={x:Type ListView}}"/>
-                            </Button.Command>
-                        </Button>
+                        <Border Grid.Row="1" 
+                                Background="{DynamicResource Element.Background.Normal}" 
+                                BorderBrush="#30000000"
+                                BorderThickness="2,0,2,2"
+                                CornerRadius="0,0,3,3">
+                            <Button Grid.Row="1" Style="{DynamicResource AddButtonStyle}">
+                                <Button.Command>
+                                    <Binding Path="DataContext.AddSourceCommand" RelativeSource="{RelativeSource AncestorType={x:Type ListView}}"/>
+                                </Button.Command>
+                            </Button>
+                        </Border>
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsGrouping" Value="true">
