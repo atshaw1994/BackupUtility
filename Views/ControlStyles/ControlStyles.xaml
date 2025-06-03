@@ -340,9 +340,9 @@
         </Setter>
     </Style>
 
-    <Style x:Key="RemoveButtonStyle" TargetType="Button">
+    <Style x:Key="ListViewItem.RemoveButtonStyle" TargetType="Button">
         <Setter Property="Background" Value="Transparent" />
-        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Foreground" Value="{DynamicResource Window.Foreground}" />
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="Width" Value="32"/>
@@ -351,35 +351,18 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border Background="{TemplateBinding Background}"
-                        CornerRadius="0,3,3,0">
-                        <TextBlock x:Name="Glyph" Text="&#xE711;"
-                                   FontFamily="Segoe Fluent Icons" 
+                            CornerRadius="32">
+                        <TextBlock x:Name="Glyph" 
+                                   Text="&#xe74d;" FontFamily="Segoe Fluent Icons" FontWeight="Bold"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#c42b1c" />
-                            <Setter Property="Foreground" Value="#f8e4e3" />
-                            <Setter Property="BorderBrush">
-                                <Setter.Value>
-                                    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1.0">
-                                        <GradientStop Color="#f45b4c" Offset="0.0"/>
-                                        <GradientStop Color="#BF2617" Offset="1.0"/>
-                                    </LinearGradientBrush>
-                                </Setter.Value>
-                            </Setter>
+                            <Setter Property="Background" Value="{DynamicResource ListViewItem.Background.MouseOver}"/>
+                            <Setter Property="Foreground" Value="#c42b1c" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter Property="Background" Value="#b2271d" />
-                            <Setter Property="Foreground" Value="#e5aba7" />
-                            <Setter Property="BorderBrush">
-                                <Setter.Value>
-                                    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1.0">
-                                        <GradientStop Color="#e2574d" Offset="0.0"/>
-                                        <GradientStop Color="#ad2218" Offset="1.0"/>
-                                    </LinearGradientBrush>
-                                </Setter.Value>
-                            </Setter>
+                            <Setter Property="Foreground" Value="#b2271d" />
                         </Trigger>
                         <EventTrigger RoutedEvent="Mouse.MouseEnter">
                             <BeginStoryboard>
@@ -403,9 +386,9 @@
         </Setter>
     </Style>
 
-    <Style x:Key="EditButtonStyle" TargetType="Button">
+    <Style x:Key="ListViewItem.EditButtonStyle" TargetType="Button">
         <Setter Property="Background" Value="Transparent" />
-        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Foreground" Value="{DynamicResource Window.Foreground}" />
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="Width" Value="32"/>
@@ -413,36 +396,20 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border Background="{TemplateBinding Background}">
+                    <Border Background="{TemplateBinding Background}"
+                            CornerRadius="32">
                         <TextBlock x:Name="Glyph" Text="&#xe70f;"
                                    FontFamily="Segoe Fluent Icons" 
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#10ffffff" />
-                            <Setter Property="Foreground" Value="#fff" />
-                            <Setter Property="BorderBrush">
-                                <Setter.Value>
-                                    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1.0">
-                                        <GradientStop Color="#3f4146" Offset="0.0"/>
-                                        <GradientStop Color="#3f4146" Offset="0.5"/>
-                                        <GradientStop Color="#313439" Offset="1.0"/>
-                                    </LinearGradientBrush>
-                                </Setter.Value>
-                            </Setter>
+                            <Setter Property="Background" Value="{DynamicResource ListViewItem.Button.Background.MouseOver}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource ListViewItem.Button.Foreground.Interacting}" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter Property="Background" Value="#20ffffff" />
-                            <Setter Property="Foreground" Value="#fff" />
-                            <Setter Property="BorderBrush">
-                                <Setter.Value>
-                                    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1.0">
-                                        <GradientStop Color="#30ffffff" Offset="0.0"/>
-                                        <GradientStop Color="#05000000" Offset="1.0"/>
-                                    </LinearGradientBrush>
-                                </Setter.Value>
-                            </Setter>
+                            <Setter Property="Background" Value="{DynamicResource ListViewItem.Button.Background.Pressed}" />
+                            <Setter Property="Foreground" Value="{DynamicResource ListViewItem.Button.Foreground.Interacting}" />
                         </Trigger>
                         <EventTrigger RoutedEvent="Mouse.MouseEnter">
                             <BeginStoryboard>
@@ -466,7 +433,7 @@
         </Setter>
     </Style>
 
-    <Style x:Key="AddButtonStyle" TargetType="Button">
+    <Style x:Key="ListViewItem.AddButtonStyle" TargetType="Button">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="Foreground" Value="{DynamicResource Window.Foreground}" />
@@ -487,15 +454,8 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="{DynamicResource Element.Background.MouseOver}" />
-                            <Setter Property="BorderBrush">
-                                <Setter.Value>
-                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                        <GradientStop Color="#10ffffff"/>
-                                        <GradientStop Color="#10000000" Offset="1"/>
-                                    </LinearGradientBrush>
-                                </Setter.Value>
-                            </Setter>
+                            <Setter Property="Background" Value="{DynamicResource ListViewItem.Button.Background.MouseOver}" />
+                            <Setter Property="BorderBrush" Value="{DynamicResource ListViewItem.Button.Border.MouseOver}" />
                             <Setter Property="Foreground" Value="{DynamicResource Element.Foreground.MouseOver}" />
                             <Setter Property="Opacity" TargetName="Glyph" Value="1"/>
                         </Trigger>
@@ -511,7 +471,7 @@
 
     <Style TargetType="ListViewItem">
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{DynamicResource Element.Foreground.Normal}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Window.Foreground}"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Height" Value="32"/>
@@ -544,11 +504,10 @@
                                         Orientation="Horizontal"
                                         Opacity="0"
                                         Grid.Column="1">
-                                <Button x:Name="EditButton" Style="{StaticResource EditButtonStyle}"/>
-                                <Button x:Name="RemoveButton" Style="{StaticResource RemoveButtonStyle}">
+                                <Button x:Name="EditButton" Style="{StaticResource ListViewItem.EditButtonStyle}"/>
+                                <Button x:Name="RemoveButton" Style="{StaticResource ListViewItem.RemoveButtonStyle}">
                                     <Button.Command>
-                                        <Binding Path="DataContext.RemoveSourceCommand"
-                                             RelativeSource="{RelativeSource AncestorType={x:Type ListView}}"/>
+                                        <Binding Path="DataContext.RemoveSourceCommand" RelativeSource="{RelativeSource AncestorType={x:Type ListView}}"/>
                                     </Button.Command>
                                     <Button.CommandParameter>
                                         <Binding Path="."/>
@@ -559,22 +518,8 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background">
-                                <Setter.Value>
-                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                        <GradientStop Color="#20ffffff"/>
-                                        <GradientStop Color="#10ffffff" Offset="1"/>
-                                    </LinearGradientBrush>
-                                </Setter.Value>
-                            </Setter>
-                            <Setter Property="BorderBrush">
-                                <Setter.Value>
-                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                        <GradientStop Color="#10ffffff"/>
-                                        <GradientStop Color="#10000000" Offset="1"/>
-                                    </LinearGradientBrush>
-                                </Setter.Value>
-                            </Setter>
+                            <Setter Property="Background" Value="{DynamicResource ListViewItem.Background.MouseOver}"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource ListViewItem.Background.MouseOver}"/>
                         </Trigger>
                         <EventTrigger RoutedEvent="Mouse.MouseEnter">
                             <BeginStoryboard>
@@ -602,6 +547,7 @@
 
     <Style x:Key="{x:Type ListView}" TargetType="ListView">
         <Setter Property="Background" Value="{DynamicResource Element.Background.Normal}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ListView.Border}"/>
         <Setter Property="SnapsToDevicePixels" Value="true" />
         <Setter Property="OverridesDefaultStyle" Value="true" />
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
@@ -618,25 +564,20 @@
                             <RowDefinition Height="32"/>
                         </Grid.RowDefinitions>
                         <Border Name="Border" 
-                            Background="{TemplateBinding Background}"
-                            BorderThickness="2,2,2,0"
-                            CornerRadius="3,3,0,0">
-                            <Border.BorderBrush>
-                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1.0">
-                                    <GradientStop Color="#30ffffff" Offset="0.0"/>
-                                    <GradientStop Color="#30000000" Offset="1.0"/>
-                                </LinearGradientBrush>
-                            </Border.BorderBrush>
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{DynamicResource ListView.Border.BorderThickness}"
+                                CornerRadius="3,3,0,0">
                             <ScrollViewer Style="{DynamicResource {x:Static GridView.GridViewScrollViewerStyleKey}}">
                                 <ItemsPresenter />
                             </ScrollViewer>
                         </Border>
                         <Border Grid.Row="1" 
-                                Background="{DynamicResource Element.Background.Normal}" 
-                                BorderBrush="#30000000"
-                                BorderThickness="2,0,2,2"
+                                Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{DynamicResource ListViewItem.AddButton.Border.BorderThickness}"
                                 CornerRadius="0,0,3,3">
-                            <Button Grid.Row="1" Style="{DynamicResource AddButtonStyle}">
+                            <Button Grid.Row="1" Style="{DynamicResource ListViewItem.AddButtonStyle}">
                                 <Button.Command>
                                     <Binding Path="DataContext.AddSourceCommand" RelativeSource="{RelativeSource AncestorType={x:Type ListView}}"/>
                                 </Button.Command>

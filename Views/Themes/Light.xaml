@@ -50,19 +50,32 @@
     <SolidColorBrush x:Key="Element.Foreground.Pressed" Color="#000"/>
     <SolidColorBrush x:Key="Element.Foreground.Disabled" Color="#888888"/>
 
-    <SolidColorBrush x:Key="ListBoxItem.Background.MouseOver" Color="#e5f3fb"/>
-    <SolidColorBrush x:Key="ListBoxItem.Background.Selected" Color="#cbe8f6"/>
-    <SolidColorBrush x:Key="ListBoxItem.Border.MouseOver" Color="#70c0e7"/>
-    <SolidColorBrush x:Key="ListBoxItem.Border.Selected" Color="#26a0da"/>
-
-    <SolidColorBrush x:Key="ListBox.Background" Color="#fff"/>
-    <SolidColorBrush x:Key="ListBox.Border" Color="#abadb3"/>
-
     <SolidColorBrush x:Key="TextBox.Background" Color="#fff"/>
     <SolidColorBrush x:Key="TextBox.Border" Color="#d0d1d4"/>
 
     <SolidColorBrush x:Key="ProgressBar.Track.Fill" Color="Green"/>
     <SolidColorBrush x:Key="ProgressBar.Track.Border" Color="Black"/>
+
+    <SolidColorBrush x:Key="ListView.Border" Color="#707070"/>
+    <Thickness x:Key="ListView.Border.BorderThickness">1,1,1,0</Thickness>
+    <Thickness x:Key="ListViewItem.AddButton.Border.BorderThickness">1,0,1,1</Thickness>
+    <SolidColorBrush x:Key="ListViewItem.Button.Background.MouseOver" Color="Transparent"/>
+    <SolidColorBrush x:Key="ListViewItem.Button.Background.Pressed" Color="Transparent"/>
+    <SolidColorBrush x:Key="ListViewItem.Button.Foreground.Interacting" Color="#383838"/>
+    <LinearGradientBrush x:Key="ListViewItem.Button.Border.MouseOver" StartPoint="0.5,0" EndPoint="0.5,1.0">
+        <GradientStop Color="#3f4146" Offset="0.0"/>
+        <GradientStop Color="#3f4146" Offset="0.5"/>
+        <GradientStop Color="#313439" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="ListViewItem.Button.Border.Pressed" StartPoint="0.5,0" EndPoint="0.5,1.0">
+        <GradientStop Color="#30ffffff" Offset="0.0"/>
+        <GradientStop Color="#05000000" Offset="1.0"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="ListViewItem.Background.MouseOver" Color="#bee6fd"/>
+    <LinearGradientBrush x:Key="ListViewItem.Border.MouseOver" StartPoint="0.5,0" EndPoint="0.5,1.0">
+        <GradientStop Color="#10ffffff" Offset="0"/>
+        <GradientStop Color="#10ffffff" Offset="1"/>
+    </LinearGradientBrush>
 
     <CornerRadius x:Key="Element.CornerRadius" TopLeft="3" TopRight="3" BottomLeft="3" BottomRight="3"/>
 
