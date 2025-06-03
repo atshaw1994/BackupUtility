@@ -94,6 +94,8 @@ namespace BackupUtility.ViewModels
             List<BackupObject> loadedBackupItems = await BackupObjectSerializer.DeserializeListFromFileAsync(loadFilePath);
             foreach (BackupObject backupObject in loadedBackupItems)
                 BackupObjects.Add(backupObject);
+            _backupProgress = 0;
+            BackupObjects[0].IsFirst = true;
         }
 
         protected virtual void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -194,6 +196,7 @@ namespace BackupUtility.ViewModels
                 List<BackupObject> backupObjectList = [.. BackupObjects];
                 string saveFilePath = "backup_objects.json";
                 await BackupObjectSerializer.SerializeListToFileAsync(backupObjectList, saveFilePath);
+                BackupObjects[0].IsFirst = true;
             }
         }
 

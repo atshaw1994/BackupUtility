@@ -1,10 +1,30 @@
-﻿namespace BackupUtility.Models
+﻿using System.ComponentModel;
+
+namespace BackupUtility.Models
 {
-    public class BackupObject
+    public class BackupObject : INotifyPropertyChanged
     {
         public Guid Id { get; set; }
         public string Source { get; set; }
         public string Destination { get; set; }
+
+        private bool _isFirst;
+        public bool IsFirst
+        {
+            get { return _isFirst; }
+            set
+            {
+                if (_isFirst != value)
+                {
+                    _isFirst = value;
+                    OnPropertyChanged(nameof(IsFirst));
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected virtual void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         public BackupObject()
         {

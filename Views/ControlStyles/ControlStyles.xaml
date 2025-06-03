@@ -3,6 +3,7 @@
                     xmlns:conv="clr-namespace:BackupUtility.Converters">
 
     <conv:PathFormatterConverter x:Key="PathFormatter"/>
+    <conv:ListViewItemIndexConverter x:Key="ListViewItemIndexConverter" />
 
     <Style TargetType="Button">
         <Setter Property="Background" Value="{DynamicResource Element.Background.Normal}" />
@@ -478,10 +479,11 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ListViewItem">
-                    <Border Background="{TemplateBinding Background}"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        Padding="0">
+                    <Border x:Name="Border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="0">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -491,14 +493,15 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition/>
                                     <ColumnDefinition/>
+                                    <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="{Binding Source, Converter={StaticResource PathFormatter}}"
-                                       VerticalAlignment="Center"
-                                       HorizontalAlignment="Left" Margin="0,0,10,0"/>
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Left" Margin="0,0,10,0"/>
                                 <TextBlock Grid.Column="1"
-                                       Text="{Binding Destination, Converter={StaticResource PathFormatter}}"
-                                       VerticalAlignment="Center"
-                                       HorizontalAlignment="Left"/>
+                                           Text="{Binding Destination, Converter={StaticResource PathFormatter}}"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Left"/>
                             </Grid>
                             <StackPanel x:Name="ButtonPanel"
                                         Orientation="Horizontal"
@@ -521,6 +524,13 @@
                             <Setter Property="Background" Value="{DynamicResource ListViewItem.Background.MouseOver}"/>
                             <Setter Property="BorderBrush" Value="{DynamicResource ListViewItem.Background.MouseOver}"/>
                         </Trigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                <Condition Binding="{Binding Path=IsFirst}" Value="True"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="Border" Property="CornerRadius" Value="3,3,0,0"/>
+                        </MultiDataTrigger>
                         <EventTrigger RoutedEvent="Mouse.MouseEnter">
                             <BeginStoryboard>
                                 <Storyboard>
