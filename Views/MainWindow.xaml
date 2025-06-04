@@ -28,10 +28,11 @@
         <converters:PathFormatterConverter x:Key="PathFormatter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </Window.Resources>
+
     <Border Background="{DynamicResource Window.Background}" 
-            BorderBrush="{DynamicResource Window.Border}" 
-            BorderThickness="1"
-            CornerRadius="8">
+        BorderBrush="{DynamicResource Window.Border}" 
+        BorderThickness="1"
+        CornerRadius="8">
         <Grid x:Name="baseGrid">
             <StackPanel>
                 <Grid x:Name="CaptionBar" Margin="4,0,0,0">
@@ -44,8 +45,8 @@
                     </Grid.ColumnDefinitions>
                     <Image Grid.Column="0" Width="18" Height="18" Source="/Backup.ico" />
                     <TextBlock Grid.Column="1" Margin="4,0,0,0" VerticalAlignment="Center" FontSize="14"
-                                Foreground="{DynamicResource CaptionBar.Foreground}"
-                                Text="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Title}">
+                            Foreground="{DynamicResource CaptionBar.Foreground}"
+                            Text="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Title}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
                                 <Style.Triggers>
@@ -58,25 +59,25 @@
                     </TextBlock>
                     <Button Grid.Column="2" Click="OnMinimizeButtonClick" Style="{DynamicResource CaptionBar.Button}">
                         <Path Width="12" Height="12" Data="M 2,10 H 10" 
-                              Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
-                              StrokeThickness="1" />
+                          Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                          StrokeThickness="1" />
                     </Button>
                     <Button Name="maximizeButton" Grid.Column="3" Click="OnMaximizeRestoreButtonClick" Style="{DynamicResource CaptionBar.Button}">
                         <Path Width="12" Height="12" Data="M 2,2 v8 h8 v-8z"
-                              Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
-                              StrokeThickness="1" />
+                          Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                          StrokeThickness="1" />
                     </Button>
                     <Button Name="restoreButton" Grid.Column="3" Click="OnMaximizeRestoreButtonClick" Visibility="Collapsed"
-                            Style="{DynamicResource CaptionBar.Button}">
+                        Style="{DynamicResource CaptionBar.Button}">
                         <Path Width="12" Height="12"
-                              Data="M 2,4 v6 h6 v-6z M 4,2.5 v-1.5 h7 v7 h-1.5"
-                              Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
-                              StrokeThickness="1" />
+                          Data="M 2,4 v6 h6 v-6z M 4,2.5 v-1.5 h7 v7 h-1.5"
+                          Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                          StrokeThickness="1" />
                     </Button>
                     <Button Grid.Column="5" Click="OnCloseButtonClick" Style="{DynamicResource CaptionBar.CloseButton}">
                         <Path Width="12" Height="12" Data="M 2,2 l8,8 M 10,2 l-8,8"
-                              Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
-                              StrokeThickness="1" />
+                          Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                          StrokeThickness="1" />
                     </Button>
                 </Grid>
                 <Label Content="Backup Device" Foreground="{DynamicResource Window.Foreground}"/>
@@ -86,8 +87,7 @@
                           Margin="8,0"
                           ItemsSource="{Binding BackupObjects}"
                           DisplayMemberPath="Source"
-                          MouseDoubleClick="BackupObjectsListView_MouseDoubleClick" 
-                          d:ItemsSource="{d:SampleData ItemCount=5}">
+                          MouseDoubleClick="BackupObjectsListView_MouseDoubleClick">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Source" Width="Auto">
@@ -106,45 +106,45 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Button x:Name="CancelBackupButton"
-                            Padding="8,0"
-                            Height="32" 
-                            Margin="8"
-                            HorizontalAlignment="Left"
-                            Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
-                            Command="{Binding CancelBackupCommand}">
+                        Padding="8,0"
+                        Height="32" 
+                        Margin="8"
+                        HorizontalAlignment="Left"
+                        Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Command="{Binding CancelBackupCommand}">
                         <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xe711;" FontSize="20" VerticalAlignment="Center"/>
                     </Button>
                     <ProgressBar x:Name="BackupProgessBar"
-                                 Grid.Column="1" 
-                                 Minimum="0" 
-                                 Maximum="100"
-                                 Value="{Binding BackupProgress}"
-                                 Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                 Opacity="0.5"
-                                 Height="14"/>
+                             Grid.Column="1" 
+                             Minimum="0" 
+                             Maximum="100"
+                             Value="{Binding BackupProgress}"
+                             Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
+                             Opacity="0.5"
+                             Height="14"/>
                     <TextBlock Text="{Binding BackupProgress, StringFormat={}{0}%}"
-                               Grid.Column="1"
-                               Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
-                               Foreground="{DynamicResource Window.Foreground}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
+                           Grid.Column="1"
+                           Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
+                           Foreground="{DynamicResource Window.Foreground}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
                     <Button x:Name="StartBackupButton"
-                            Padding="8,0" 
-                            Grid.Column="2"
-                            Height="32" 
-                            Margin="8"
-                            HorizontalAlignment="Right"
-                            Visibility="{Binding !IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
-                            Command="{Binding StartBackupCommand}">
+                        Padding="8,0" 
+                        Grid.Column="2"
+                        Height="32" 
+                        Margin="8"
+                        HorizontalAlignment="Right"
+                        Visibility="{Binding !IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Command="{Binding StartBackupCommand}">
                         <TextBlock Text="&#xedda;" FontSize="16" FontFamily="Segoe Fluent Icons"/>
                     </Button>
                 </Grid>
             </StackPanel>
             <Border x:Name="InProgressOverlay"
-                    Background="#000000"
-                    Opacity="0.8"
-                    Margin="0,32,0,46"
-                    Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                Background="#000000"
+                Opacity="0.8"
+                Margin="0,32,0,46"
+                Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"/>
         </Grid>
     </Border>
 </Window>

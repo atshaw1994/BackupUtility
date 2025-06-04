@@ -95,7 +95,8 @@ namespace BackupUtility.ViewModels
             foreach (BackupObject backupObject in loadedBackupItems)
                 BackupObjects.Add(backupObject);
             _backupProgress = 0;
-            BackupObjects[0].IsFirst = true;
+            if (BackupObjects.Count > 0)
+                BackupObjects[0].IsFirst = true;
         }
 
         protected virtual void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
