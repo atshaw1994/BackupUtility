@@ -25,6 +25,7 @@ namespace BackupUtility.Views
         public BackupObjectForm(ObservableCollection<BackupObject> backupObjects)
         {
             InitializeComponent();
+            Title = "New Backup Object";
             var viewModel = new BackupObjectFormViewModel();
             DataContext = viewModel;
             SetupViewModelEvents(viewModel);
@@ -35,6 +36,7 @@ namespace BackupUtility.Views
         public BackupObjectForm(BackupObject BackupObject, ObservableCollection<BackupObject> backupObjects)
         {
             InitializeComponent();
+            Title = "Edit Backup Object";
             var viewModel = new BackupObjectFormViewModel(BackupObject);
             DataContext = viewModel;
             SetupViewModelEvents(viewModel);

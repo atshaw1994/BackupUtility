@@ -87,7 +87,7 @@
                           Margin="8,0"
                           ItemsSource="{Binding BackupObjects}"
                           DisplayMemberPath="Source"
-                          MouseDoubleClick="BackupObjectsListView_MouseDoubleClick">
+                          MouseDoubleClick="BackupObjectsListView_MouseDoubleClick" d:ItemsSource="{d:SampleData ItemCount=5}">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Source" Width="Auto">
