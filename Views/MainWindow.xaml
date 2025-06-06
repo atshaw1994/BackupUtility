@@ -6,6 +6,8 @@
         xmlns:local="clr-namespace:BackupUtility.Views"
         xmlns:vm="clr-namespace:BackupUtility.ViewModels"
         xmlns:converters="clr-namespace:BackupUtility.Converters"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
+        xmlns:io="clr-namespace:System.IO;assembly=System.Runtime"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         TextOptions.TextFormattingMode="Display"
@@ -28,6 +30,8 @@
         <converters:NullToBoolConverter x:Key="NullToBoolConverter"/>
         <converters:PathFormatterConverter x:Key="PathFormatter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:DriveNameConverter x:Key="DriveNameConverter" />
+        <converters:FreeSpaceConverter x:Key="FreeSpaceConverter" />
     </Window.Resources>
 
     <Border Background="{DynamicResource Window.Background}" 
@@ -91,8 +95,31 @@
                         <ColumnDefinition Width="auto"/>
                     </Grid.ColumnDefinitions>
                     <Label Content="Backup Device" Foreground="{DynamicResource Window.Foreground}"/>
-                    <ComboBox x:Name="BackupDriveSelection" Grid.Row="1" IsEditable="False" SelectionChanged="BackupDriveSelection_SelectionChanged"/>
-                    <Button x:Name="RefreshDrivesButton" Grid.Row="1" Grid.Column="1" Margin="8,0,0,0" Width="32" Click="RefreshDrivesButton_Click">
+                    <ComboBox x:Name="BackupDriveSelection"
+                              Grid.Row="1" 
+                              IsEditable="False" 
+                              ItemsSource="{Binding DrivesList}" 
+                              SelectedItem="{Binding BackupDrive, Mode=TwoWay}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock>
+                                        <TextBlock.Text>
+                                            <MultiBinding Converter="{StaticResource DriveNameConverter}">
+                                                <Binding Path="VolumeLabel"/>
+                                                <Binding Path="DriveType"/>
+                                                <Binding Path="Name"/>
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                    <TextBlock Text=" "/>
+                                    <TextBlock Text="{Binding AvailableFreeSpace, Converter={StaticResource FreeSpaceConverter}}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <Button x:Name="RefreshDrivesButton" Grid.Row="1" Grid.Column="1" Margin="8,0,0,0" Width="32"
+                            Command="{Binding PopulateDrivesCommand}" CommandParameter="BackupDriveSelection">
                         <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xedab;" FontSize="16"/>
                     </Button>
                 </Grid>

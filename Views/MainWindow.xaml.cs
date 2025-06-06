@@ -24,8 +24,7 @@ namespace BackupUtility.Views
     {
         private readonly DispatcherTimer BackupTimer;
         private MainWindowViewModel ViewModel { get; }
-        private readonly List<DriveInfo> drives = [];
-
+        
         public MainWindow()
         {
             InitializeComponent();
@@ -51,7 +50,6 @@ namespace BackupUtility.Views
                     }
                 }
             };
-            PopulateDrives();
         }
 
         #region TrayIcon
@@ -248,57 +246,10 @@ namespace BackupUtility.Views
         }
         #endregion
 
-        private void PopulateDrives()
-        {
-            BackupDriveSelection.Items.Clear();
-            foreach (string driveletter in Directory.GetLogicalDrives())
-            {
-                DriveInfo driveInfo = new(driveletter);
-                if (driveInfo.IsReady)
-                {
-                    drives.Add(driveInfo);
-                    string volumeLabel = driveInfo.VolumeLabel;
-                    string driveLetterOnly = driveInfo.Name[..2];
-                    string displayName;
-
-                    if (string.IsNullOrEmpty(volumeLabel))
-                        displayName = $"{driveInfo.DriveType} Disk ({driveLetterOnly})";
-                    else if (!string.IsNullOrEmpty(volumeLabel))
-                        displayName = $"{volumeLabel} ({driveLetterOnly})";
-                    else
-                        displayName = driveLetterOnly; // Or some other default if no label
-                    displayName = displayName.Replace("Fixed", "Local");
-                    
-                    double freeSpaceGB = Math.Round((double)driveInfo.AvailableFreeSpace / 1073741824, 0); // Convert bytes to GB for display
-                    displayName += $"\t({freeSpaceGB} GB free)";
-
-                    BackupDriveSelection.Items.Add(displayName);
-                }
-            }
-            foreach (string drive in BackupDriveSelection.Items)
-                if (drive.Contains(Properties.Settings.Default.BackupDriveLetter))
-                {
-                    BackupDriveSelection.SelectedIndex = BackupDriveSelection.Items.IndexOf(drive);
-                    ViewModel.BackupDrive = drives[BackupDriveSelection.SelectedIndex];
-                }
-        }
-
         private void BackupObjectsListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (BackupObjectsListView.SelectedItem is BackupObject selectedBackupObject)
                 ViewModel.EditSourceCommand.Execute(selectedBackupObject);
         }
-
-        private void BackupDriveSelection_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (BackupDriveSelection.Items.Count > 0)
-            {
-                ViewModel.BackupDrive = drives[BackupDriveSelection.SelectedIndex];
-                Properties.Settings.Default.BackupDriveLetter = ViewModel.BackupDrive.Name[..2];
-                Properties.Settings.Default.Save();
-            }
-        }
-
-        private void RefreshDrivesButton_Click(object sender, RoutedEventArgs e) => PopulateDrives();
     }
 }

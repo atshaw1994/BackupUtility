@@ -1,79 +1,79 @@
 ﻿using BackupUtility.Models;
 using BackupUtility.Views;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Windows.Input;
 
 namespace BackupUtility.ViewModels
 {
-    public class MainWindowViewModel : INotifyPropertyChanged
+    public class MainWindowViewModel : BaseViewModel
     {
         public ObservableCollection<BackupObject> BackupObjects { get; set; }
         public DriveInfo _BackupDrive;
         public DriveInfo BackupDrive
         {
-            get { return _BackupDrive; }
+            get => _BackupDrive;
             set
             {
-                if (_BackupDrive != value)
+                if (SetProperty(ref _BackupDrive, value))
                 {
-                    _BackupDrive = value;
-                    OnPropertyChanged(nameof(BackupDrive.RootDirectory));
+                    if (_BackupDrive != null)
+                    {
+                        Properties.Settings.Default.BackupDriveLetter = _BackupDrive.Name[..2];
+                        Properties.Settings.Default.Save();
+                    }
+                    else
+                    {
+                        Properties.Settings.Default.BackupDriveLetter = string.Empty;
+                        Properties.Settings.Default.Save();
+                    }
                 }
             }
+        }
+        private ObservableCollection<DriveInfo> _DrivesList;
+        public ObservableCollection<DriveInfo> DrivesList
+        {
+            get => _DrivesList;
+            set => SetProperty(ref _DrivesList, value);
         }
         private string _statusMessage;
         public string StatusMessage
         {
-            get { return _statusMessage; }
+            get => _statusMessage;
             set
             {
-                _statusMessage = value;
-                OnPropertyChanged(nameof(StatusMessage));
+                SetProperty(ref _statusMessage, value);
                 Logs.Add($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: {value}\n");
             }
         }
         private bool _isBackupInProgress;
         public bool IsBackupInProgress
         {
-            get { return _isBackupInProgress; }
+            get => _isBackupInProgress;
             set
             {
-                if (_isBackupInProgress != value)
-                {
-                    _isBackupInProgress = value;
-                    OnPropertyChanged(nameof(IsBackupInProgress));
-                    // Enable/disable StartBackupCommand based on this state
-                    ((RelayCommand)StartBackupCommand).RaiseCanExecuteChanged();
-                    // Enable/disable CancelBackupCommand based on this state
-                    ((RelayCommand)CancelBackupCommand).RaiseCanExecuteChanged();
-                }
+                SetProperty(ref _isBackupInProgress, value);
+                ((RelayCommand)StartBackupCommand).RaiseCanExecuteChanged();
+                ((RelayCommand)CancelBackupCommand).RaiseCanExecuteChanged();
             }
         }
         private int _backupProgress;
         public int BackupProgress
         {
-            get { return _backupProgress; }
-            set
-            {
-                if (_backupProgress != value)
-                {
-                    _backupProgress = value;
-                    OnPropertyChanged(nameof(BackupProgress));
-                }
-            }
+            get => _backupProgress;
+            set => SetProperty(ref _backupProgress, value);
         }
         public bool IsIdle => !_isBackupInProgress;
 
         private readonly List<string> Logs = [];
-        public event PropertyChangedEventHandler? PropertyChanged;
         private CancellationTokenSource? _backupCancellationTokenSource;
+
         public ICommand StartBackupCommand { get; }
         public ICommand AddSourceCommand { get; }
         public ICommand EditSourceCommand { get; }
         public ICommand RemoveSourceCommand { get; }
         public ICommand CancelBackupCommand { get; }
+        public ICommand PopulateDrivesCommand { get; }
 
         public MainWindowViewModel()
         {
@@ -82,6 +82,9 @@ namespace BackupUtility.ViewModels
             AddSourceCommand = new RelayCommand(AddBackupObjectAsync);
             EditSourceCommand = new RelayCommand(EditBackupObjectAsync);
             RemoveSourceCommand = new RelayCommand(RemoveBackupObjecAsync);
+            PopulateDrivesCommand = new RelayCommand(PopulateDrivesAsync);
+            _DrivesList = [];
+            PopulateDrivesAsync();
             BackupObjects = [];
             Task.Run(LoadBackupObjectsAsync).Wait();
             _BackupDrive = new("C:");
@@ -101,11 +104,9 @@ namespace BackupUtility.ViewModels
                 BackupObjects[0].IsFirst = true;
         }
 
-        protected virtual void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
         private void CancelBackup(object? parameter = null!) => _backupCancellationTokenSource?.Cancel();
 
-        private bool CanStartBackup(object? parameter) => !IsBackupInProgress;
+        private bool CanStartBackup(object? parameter) => !IsBackupInProgress && BackupDrive is not null;
 
         private async void PerformBackupAsync(object? parameter = null!)
         {
@@ -301,6 +302,32 @@ namespace BackupUtility.ViewModels
             List<BackupObject> backupObjectList = [.. BackupObjects];
             string saveFilePath = "backup_objects.json";
             await BackupObjectSerializer.SerializeListToFileAsync(backupObjectList, saveFilePath);
+        }
+
+        private async void PopulateDrivesAsync(object? parameter = null!)
+        {
+            await Task.Run(() =>
+            {
+                foreach (string driveletter in Directory.GetLogicalDrives())
+                {
+                    DriveInfo driveInfo = new(driveletter);
+                    if (driveInfo.IsReady)
+                        DrivesList.Add(driveInfo);
+                }
+                string savedDriveLetter = Properties.Settings.Default.BackupDriveLetter;
+                if (!string.IsNullOrEmpty(savedDriveLetter))
+                {
+                    DriveInfo previouslySelected = DrivesList.FirstOrDefault(
+                        d => d.Name.StartsWith(savedDriveLetter, StringComparison.OrdinalIgnoreCase))!;
+
+                    if (previouslySelected != null)
+                        BackupDrive = previouslySelected;
+                    else if (DrivesList.Any())
+                        BackupDrive = DrivesList.First();
+                }
+                else if (DrivesList.Any())
+                    BackupDrive = DrivesList.First();
+            });
         }
 
         public static string FormatPath(string path)
