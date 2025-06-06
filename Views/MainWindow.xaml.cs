@@ -22,13 +22,9 @@ namespace BackupUtility.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly DispatcherTimer BackupTimer;
-        private MainWindowViewModel ViewModel { get; }
-        
         public MainWindow()
         {
             InitializeComponent();
-            ViewModel = (MainWindowViewModel)DataContext;
             _trayIcon = new NotifyIcon
             {
                 Icon = new Icon("Backup.ico", 40, 40),
@@ -38,18 +34,6 @@ namespace BackupUtility.Views
             };
             _trayIcon.DoubleClick += (s, e) => { Dispatcher.Invoke(() => ShowMainWindow()); };
             IsVisibleChanged += (s, e) => { if (!IsVisible) Hide(); };
-            BackupTimer = new() { Interval = TimeSpan.FromSeconds(1) };
-            BackupTimer.Tick += (sender, e) => {
-                if (DataContext is MainWindowViewModel viewModel)
-                {
-                    if (DateTime.Now.TimeOfDay == new TimeSpan(6, 0, 0))
-                    {
-                        ICommand myCommand = viewModel.StartBackupCommand;
-                        if (myCommand != null && myCommand.CanExecute(null))
-                            myCommand.Execute(null);
-                    }
-                }
-            };
         }
 
         #region TrayIcon

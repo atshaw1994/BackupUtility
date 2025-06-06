@@ -3,6 +3,7 @@ using BackupUtility.Views;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace BackupUtility.ViewModels
 {
@@ -67,6 +68,7 @@ namespace BackupUtility.ViewModels
 
         private readonly List<string> Logs = [];
         private CancellationTokenSource? _backupCancellationTokenSource;
+        private readonly DispatcherTimer _backupSchedulerTimer;
 
         public ICommand StartBackupCommand { get; }
         public ICommand AddSourceCommand { get; }
@@ -91,6 +93,16 @@ namespace BackupUtility.ViewModels
             _statusMessage = "";
             IsBackupInProgress = false;
             _backupProgress = 0;
+            _backupSchedulerTimer = new() { Interval = TimeSpan.FromSeconds(1) };
+            _backupSchedulerTimer.Tick += BackupSchedulerTimer_Tick;
+            _backupSchedulerTimer.Start();
+        }
+
+        private void BackupSchedulerTimer_Tick(object? sender, EventArgs e)
+        {
+            if (DateTime.Now.TimeOfDay == new TimeSpan(6, 0, 0))
+                if (StartBackupCommand != null && StartBackupCommand.CanExecute(null))
+                    StartBackupCommand.Execute(null);
         }
 
         private async void LoadBackupObjectsAsync()
