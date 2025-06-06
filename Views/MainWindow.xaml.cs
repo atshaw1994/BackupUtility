@@ -245,11 +245,5 @@ namespace BackupUtility.Views
             return registryValue > 0 ? WindowsTheme.Light : WindowsTheme.Dark;
         }
         #endregion
-
-        private void BackupObjectsListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            if (BackupObjectsListView.SelectedItem is BackupObject selectedBackupObject)
-                ViewModel.EditSourceCommand.Execute(selectedBackupObject);
-        }
     }
 }

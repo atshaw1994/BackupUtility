@@ -133,7 +133,7 @@
                               Grid.Row="1"
                               ItemsSource="{Binding BackupObjects}"
                               DisplayMemberPath="Source"
-                              MouseDoubleClick="BackupObjectsListView_MouseDoubleClick" d:ItemsSource="{d:SampleData ItemCount=5}">
+                              d:ItemsSource="{d:SampleData ItemCount=5}">
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Source" Width="Auto">
