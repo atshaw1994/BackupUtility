@@ -109,8 +109,8 @@ namespace BackupUtility.ViewModels
         {
             if (!Directory.Exists($"{BackupDrive.RootDirectory}\\Logs\\"))
                 Directory.CreateDirectory($"{BackupDrive.RootDirectory}\\Logs\\");
-            File.Create($"{BackupDrive.RootDirectory}\\Logs\\Log_{DateTime.Now:yyyyMMdd}.txt");
-            File.Create($"{BackupDrive.RootDirectory}\\AppsList.txt");
+            using (File.Create($"{BackupDrive.RootDirectory}\\Logs\\Log_{DateTime.Now:yyyyMMdd}.txt")) { }
+            using (File.Create($"{BackupDrive.RootDirectory}\\AppsList.txt")) { }
             StatusMessage = "[START] Backup started...";
             IsBackupInProgress = true;
             BackupProgress = 0;
@@ -124,29 +124,33 @@ namespace BackupUtility.ViewModels
                 {
                     string backupDestination = $"{BackupDrive.RootDirectory}\\Backup_{DateTime.Now:yyyyMMdd}";
                     Directory.CreateDirectory(backupDestination);
-                    long totalFiles = BackupObjects
-                            .Sum(backupObject => Directory.GetFiles(backupObject.Source, "*.*", SearchOption.AllDirectories).Length);
+                    long totalFiles = BackupObjects.Sum(backupObject => Directory.GetFiles(backupObject.Source, "*.*", SearchOption.AllDirectories).Length);
                     long processedFiles = 0;
 
                     foreach (BackupObject backupObject in BackupObjects)
                     {
                         if (cancellationToken.IsCancellationRequested)
                         {
-                            StatusMessage = "[CANCEL] Backup cancelled.";
+                            StatusMessage = "[STOP] Backup cancelled.";
                             return;
                         }
 
                         if (Directory.Exists(backupObject.Source))
                         {
-                            string destinationPath = Path.Combine(backupObject.Destination, new DirectoryInfo(backupObject.Source).Name);
-                            CopyChanges(backupObject.Source, $"{backupDestination}\\{backupObject.Destination}\\", cancellationToken, new Progress<int>(p =>
-                            {
-                                // Calculate overall progress
-                                long folderFiles = Directory.GetFiles(backupObject.Source, "*.*", SearchOption.AllDirectories).Length;
-                                if (totalFiles > 0 && folderFiles > 0)
-                                    BackupProgress = (int)((double)processedFiles / totalFiles * 100);
-                                // Optionally update StatusMessage with more detail
-                            }), ref processedFiles);
+                            // Calculate currentBackupObjectFiles once for this object
+                            long currentBackupObjectFiles = Directory.GetFiles(backupObject.Source, "*.*", SearchOption.AllDirectories).Length;
+
+                            string finalDestPathForSource = Path.Combine(backupDestination, backupObject.Destination, new DirectoryInfo(backupObject.Source).Name);
+
+                            CopyChanges(backupObject.Source,
+                                finalDestPathForSource,
+                                new Progress<int>(p =>
+                                {
+                                    if (totalFiles > 0) BackupProgress = (int)((double)processedFiles / totalFiles * 100);
+                                }),
+                                ref processedFiles,
+                                currentBackupObjectFiles,
+                                cancellationToken: cancellationToken);
                         }
                         else
                         {
@@ -163,7 +167,7 @@ namespace BackupUtility.ViewModels
             }
             catch (OperationCanceledException)
             {
-                StatusMessage = "[CANCEL] Backup cancelled.";
+                StatusMessage = "[STOP] Backup cancelled.";
                 BackupProgress = 0;
             }
             catch (Exception ex)
@@ -181,10 +185,81 @@ namespace BackupUtility.ViewModels
                 foreach (string log in Logs)
                     logs_str += log + "\n";
 
-                //File.AppendAllText($"{BackupDrive.RootDirectory}\\Logs\\Log_{DateTime.Now:yyyyMMdd}.txt", logs_str);
+                File.AppendAllText($"{BackupDrive.RootDirectory}\\Logs\\Log_{DateTime.Now:yyyyMMdd}.txt", logs_str);
 
-                //foreach (string app in InstalledAppsFromRegistry.GetInstalledApps())
-                //    File.AppendAllText($"{BackupDrive.RootDirectory}\\AppsList.txt", $"{app}\n");
+                File.AppendAllText($"{BackupDrive.RootDirectory}\\AppsList.txt", $"Last Updated: {DateTime.Now:MM/dd/yyyy 'at' hh:mm tt}\n\n");
+
+                foreach (string app in InstalledAppsFromRegistry.GetInstalledApps())
+                    File.AppendAllText($"{BackupDrive.RootDirectory}\\AppsList.txt", $"{app}\n");
+            }
+        }
+
+        private void CopyChanges(string sourceDir, string destDir, IProgress<int> progress, ref long processedFiles, long totalFilesInThisSourceDir, CancellationToken cancellationToken)
+        {
+            Directory.CreateDirectory(destDir);
+            long currentFile = 0;
+
+            foreach (string sourceFile in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                string relativePath = sourceFile[(sourceDir.Length + 1)..];
+                string destFile = Path.Combine(destDir, relativePath);
+                Directory.CreateDirectory(Path.GetDirectoryName(destFile)!);
+
+                FileInfo sourceInfo = new(sourceFile);
+                FileInfo destInfo = new(destFile);
+
+                if (!File.Exists(destFile) || sourceInfo.LastWriteTime > destInfo.LastWriteTime || sourceInfo.Length != destInfo.Length)
+                {
+                    try
+                    {
+                        StatusMessage = $"[COPY] Copying '{sourceInfo.Name}'...";
+                        File.Copy(sourceFile, destFile, true);
+                    }
+                    catch (Exception ex)
+                    {
+                        string errorMessage = $"[ERR] Error copying '{sourceInfo.Name}': {ex.Message}";
+                        StatusMessage = errorMessage;
+                        Logs.Add($"{errorMessage} - Full Details: {ex}"); // Add this line
+                    }
+                }
+                else
+                {
+                    StatusMessage = $"[INFO] File '{sourceInfo.Name}' already up to date. Continuing...";
+                }
+
+                currentFile++; // Increment currentFileInThisSourceDir
+                processedFiles++; // Increment the global counter
+
+                if (totalFilesInThisSourceDir > 0)
+                {
+                    progress?.Report((int)((double)currentFile / totalFilesInThisSourceDir * 100));
+                }
+            }
+
+            // Logic to delete extra files in destination (check for cancellation)
+            foreach (string destEntry in Directory.GetFileSystemEntries(destDir, "*", SearchOption.AllDirectories))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                string relativePath = destEntry[(destDir.Length + 1)..];
+                string sourceEntry = Path.Combine(sourceDir, relativePath);
+
+                if (!File.Exists(sourceEntry) && !Directory.Exists(sourceEntry))
+                {
+                    try
+                    {
+                        if (File.Exists(destEntry))
+                            File.Delete(destEntry);
+                        else if (Directory.Exists(destEntry))
+                            Directory.Delete(destEntry, true);
+                    }
+                    catch (Exception ex)
+                    {
+                        StatusMessage = $"[ERR] Error deleting '{destEntry}': {ex.Message}";
+                        Logs.Add($"[ERR] Error deleting '{destEntry}': {ex.Message} - Full Details: {ex}"); // Add this line
+                    }
+                }
             }
         }
 
@@ -224,72 +299,6 @@ namespace BackupUtility.ViewModels
             List<BackupObject> backupObjectList = [.. BackupObjects];
             string saveFilePath = "backup_objects.json";
             await BackupObjectSerializer.SerializeListToFileAsync(backupObjectList, saveFilePath);
-        }
-
-        private void CopyChanges(string sourceDir, string destDir, CancellationToken cancellationToken, IProgress<int> progress, ref long processedFiles)
-        {
-            Directory.CreateDirectory(destDir);
-            long fileCount = Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories).Length;
-            long currentFile = 0;
-
-            foreach (string sourceFile in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                string relativePath = sourceFile[(sourceDir.Length + 1)..];
-                string destFile = Path.Combine(destDir, relativePath);
-                Directory.CreateDirectory(Path.GetDirectoryName(destFile)!);
-
-                FileInfo sourceInfo = new(sourceFile);
-                FileInfo destInfo = new(destFile);
-
-                if (!File.Exists(destFile) || sourceInfo.LastWriteTime > destInfo.LastWriteTime || sourceInfo.Length != destInfo.Length)
-                {
-                    try
-                    {
-                        StatusMessage = $"[COPY] Copying '{sourceInfo.Name}'...";
-                        File.Copy(sourceFile, destFile, true);
-                    }
-                    catch (Exception ex)
-                    {
-                        StatusMessage = $"[ERR] Error copying '{sourceInfo.Name}': {ex.Message}";
-                    }
-                }
-                else
-                {
-                    StatusMessage = $"[INFO] File '{sourceInfo.Name}' already up to date. Continuing...";
-                }
-
-                currentFile++;
-                processedFiles++;
-                if (fileCount > 0)
-                {
-                    progress?.Report((int)((double)currentFile / fileCount * 100));
-                }
-            }
-
-            // Logic to delete extra files in destination (check for cancellation)
-            foreach (string destEntry in Directory.GetFileSystemEntries(destDir, "*", SearchOption.AllDirectories))
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                string relativePath = destEntry[(destDir.Length + 1)..];
-                string sourceEntry = Path.Combine(sourceDir, relativePath);
-
-                if (!File.Exists(sourceEntry) && !Directory.Exists(sourceEntry))
-                {
-                    try
-                    {
-                        if (File.Exists(destEntry)) 
-                            File.Delete(destEntry);
-                        else if (Directory.Exists(destEntry)) 
-                            Directory.Delete(destEntry, true);
-                    }
-                    catch (Exception ex)
-                    {
-                        StatusMessage = $"[ERR] Error deleting '{destEntry}': {ex.Message}";
-                    }
-                }
-            }
         }
 
         public static string FormatPath(string path)
