@@ -552,7 +552,14 @@
                                         Orientation="Horizontal"
                                         Opacity="0"
                                         Grid.Column="1">
-                                <Button x:Name="EditButton" Style="{StaticResource ListViewItem.EditButtonStyle}"/>
+                                <Button x:Name="EditButton" Style="{StaticResource ListViewItem.EditButtonStyle}">
+                                    <Button.Command>
+                                        <Binding Path="DataContext.EditSourceCommand" RelativeSource="{RelativeSource AncestorType={x:Type ListView}}"/>
+                                    </Button.Command>
+                                    <Button.CommandParameter>
+                                        <Binding Path="."/>
+                                    </Button.CommandParameter>
+                                </Button>
                                 <Button x:Name="RemoveButton" Style="{StaticResource ListViewItem.RemoveButtonStyle}">
                                     <Button.Command>
                                         <Binding Path="DataContext.RemoveSourceCommand" RelativeSource="{RelativeSource AncestorType={x:Type ListView}}"/>
