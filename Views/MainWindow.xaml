@@ -137,14 +137,14 @@
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
                     <Button x:Name="StartBackupButton"
-                            Style="{DynamicResource StartBackupButton}"
+                            Style="{DynamicResource StartCancelBackupButton}"
                             Grid.Column="1"
                             Visibility="{Binding IsIdle, Converter={StaticResource BooleanToVisibilityConverter}}"
                             Command="{Binding StartBackupCommand}">
                         <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xedda;" FontSize="16"/>
                     </Button>
                     <Button x:Name="CancelBackupButton"
-                            Style="{DynamicResource StartBackupButton}"
+                            Style="{DynamicResource StartCancelBackupButton}"
                             Grid.Column="1"
                             Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
                             Command="{Binding CancelBackupCommand}">

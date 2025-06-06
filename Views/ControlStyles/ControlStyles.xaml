@@ -49,7 +49,7 @@
         </Setter>
     </Style>
 
-    <Style x:Key="StartBackupButton" TargetType="Button">
+    <Style x:Key="StartCancelBackupButton" TargetType="Button">
         <Setter Property="Background" Value="{DynamicResource Element.Background.Normal}" />
         <Setter Property="Foreground" Value="{DynamicResource Element.Foreground.Normal}" />
         <Setter Property="FontSize" Value="12"/>
