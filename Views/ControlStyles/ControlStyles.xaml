@@ -58,7 +58,6 @@
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="BorderBrush" Value="{DynamicResource Element.Border.Normal}"/>
         <Setter Property="Padding" Value="8,0" />
-        <Setter Property="Margin" Value="8" />
         <Setter Property="Height" Value="32"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -610,7 +609,6 @@
         <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
         <Setter Property="ScrollViewer.CanContentScroll" Value="true" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="Margin" Value="8,0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ListView">

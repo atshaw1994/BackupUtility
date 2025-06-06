@@ -15,6 +15,7 @@
         Width="460"
         SizeToContent="Height"
         Background="Transparent"
+        Foreground="{DynamicResource Window.Foreground}"
         WindowStyle="None"
         StateChanged="Window_StateChanged">
     <Window.DataContext>
@@ -34,7 +35,7 @@
             BorderThickness="1"
             CornerRadius="8">
         <Grid x:Name="baseGrid">
-            <StackPanel>
+            <StackPanel x:Name="baseStackPanel">
                 <Grid x:Name="CaptionBar" Margin="4,0,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="24"/>
@@ -80,42 +81,50 @@
                           StrokeThickness="1" />
                     </Button>
                 </Grid>
-                <Label Content="Backup Device" Foreground="{DynamicResource Window.Foreground}"/>
-                <ComboBox x:Name="BackupDriveSelection" IsEditable="False" Margin="8,0" SelectionChanged="BackupDriveSelection_SelectionChanged"/>
-                <Label Content="Backup Objects" Foreground="{DynamicResource Window.Foreground}"/>
-                <ListView x:Name="BackupObjectsListView"
-                          Margin="8,0"
-                          ItemsSource="{Binding BackupObjects}"
-                          DisplayMemberPath="Source"
-                          MouseDoubleClick="BackupObjectsListView_MouseDoubleClick" d:ItemsSource="{d:SampleData ItemCount=5}">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="Source" Width="Auto">
-                                <GridViewColumn.DisplayMemberBinding>
-                                    <Binding Path="Source" Converter="{StaticResource PathFormatter}" />
-                                </GridViewColumn.DisplayMemberBinding>
-                            </GridViewColumn>
-                            <GridViewColumn DisplayMemberBinding="{Binding Path=Destination}" Header="Destination" Width="Auto"/>
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-                <Grid x:Name="ProcedureControls">
+                <Grid x:Name="BackupDeviceGrid" Margin="8,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="Backup Device" Foreground="{DynamicResource Window.Foreground}"/>
+                    <ComboBox x:Name="BackupDriveSelection" Grid.Row="1" IsEditable="False" SelectionChanged="BackupDriveSelection_SelectionChanged"/>
+                    <Button x:Name="RefreshDrivesButton" Grid.Row="1" Grid.Column="1" Margin="8,0,0,0" Width="32" Click="RefreshDrivesButton_Click">
+                        <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xedab;" FontSize="16"/>
+                    </Button>
+                </Grid>
+                <Grid x:Name="ListViewGrid" Margin="8,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Label Content="Backup Objects" Foreground="{DynamicResource Window.Foreground}"/>
+                    <ListView x:Name="BackupObjectsListView"
+                              Grid.Row="1"
+                              ItemsSource="{Binding BackupObjects}"
+                              DisplayMemberPath="Source"
+                              MouseDoubleClick="BackupObjectsListView_MouseDoubleClick" d:ItemsSource="{d:SampleData ItemCount=5}">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Source" Width="Auto">
+                                    <GridViewColumn.DisplayMemberBinding>
+                                        <Binding Path="Source" Converter="{StaticResource PathFormatter}" />
+                                    </GridViewColumn.DisplayMemberBinding>
+                                </GridViewColumn>
+                                <GridViewColumn DisplayMemberBinding="{Binding Path=Destination}" Header="Destination" Width="Auto"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Grid>
+                <Grid x:Name="ProcedureControls" Margin="8">
+                    <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Button x:Name="CancelBackupButton"
-                        Padding="8,0"
-                        Height="32" 
-                        Margin="8"
-                        HorizontalAlignment="Left"
-                        Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
-                        Command="{Binding CancelBackupCommand}">
-                        <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xe711;" FontSize="20" VerticalAlignment="Center"/>
-                    </Button>
                     <ProgressBar x:Name="BackupProgessBar"
-                             Grid.Column="1" 
                              Minimum="0" 
                              Maximum="100"
                              Value="{Binding BackupProgress}"
@@ -123,17 +132,23 @@
                              Opacity="0.5"
                              Height="14"/>
                     <TextBlock Text="{Binding BackupProgress, StringFormat={}{0}%}"
-                           Grid.Column="1"
-                           Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
-                           Foreground="{DynamicResource Window.Foreground}"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"/>
+                               Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
+                               Foreground="{DynamicResource Window.Foreground}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
                     <Button x:Name="StartBackupButton"
                             Style="{DynamicResource StartBackupButton}"
-                            Grid.Column="2"
-                            Visibility="{Binding !IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            Grid.Column="1"
+                            Visibility="{Binding IsIdle, Converter={StaticResource BooleanToVisibilityConverter}}"
                             Command="{Binding StartBackupCommand}">
-                        <TextBlock Text="&#xedda;" FontSize="16" FontFamily="Segoe Fluent Icons"/>
+                        <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xedda;" FontSize="16"/>
+                    </Button>
+                    <Button x:Name="CancelBackupButton"
+                            Style="{DynamicResource StartBackupButton}"
+                            Grid.Column="1"
+                            Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            Command="{Binding CancelBackupCommand}">
+                        <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xf78a;" FontSize="16"/>
                     </Button>
                 </Grid>
             </StackPanel>

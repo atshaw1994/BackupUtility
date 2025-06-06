@@ -250,6 +250,7 @@ namespace BackupUtility.Views
 
         private void PopulateDrives()
         {
+            BackupDriveSelection.Items.Clear();
             foreach (string driveletter in Directory.GetLogicalDrives())
             {
                 DriveInfo driveInfo = new(driveletter);
@@ -267,12 +268,9 @@ namespace BackupUtility.Views
                     else
                         displayName = driveLetterOnly; // Or some other default if no label
                     displayName = displayName.Replace("Fixed", "Local");
-                    long freeSpaceBytes = driveInfo.AvailableFreeSpace;
-                    // Convert bytes to GB for display
-                    double freeSpaceGB = Math.Round((double)freeSpaceBytes / (1024 * 1024 * 1024), 0);
-                    double totalSizeGB = Math.Round((double)driveInfo.TotalSize / (1024 * 1024 * 1024), 0);
-
-                    displayName += $" {freeSpaceGB} GB free of {totalSizeGB} GB";
+                    
+                    double freeSpaceGB = Math.Round((double)driveInfo.AvailableFreeSpace / 1073741824, 0); // Convert bytes to GB for display
+                    displayName += $"\t({freeSpaceGB} GB free)";
 
                     BackupDriveSelection.Items.Add(displayName);
                 }
@@ -293,9 +291,14 @@ namespace BackupUtility.Views
 
         private void BackupDriveSelection_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ViewModel.BackupDrive = drives[BackupDriveSelection.SelectedIndex];
-            Properties.Settings.Default.BackupDriveLetter = ViewModel.BackupDrive.Name[..2];
-            Properties.Settings.Default.Save();
+            if (BackupDriveSelection.Items.Count > 0)
+            {
+                ViewModel.BackupDrive = drives[BackupDriveSelection.SelectedIndex];
+                Properties.Settings.Default.BackupDriveLetter = ViewModel.BackupDrive.Name[..2];
+                Properties.Settings.Default.Save();
+            }
         }
+
+        private void RefreshDrivesButton_Click(object sender, RoutedEventArgs e) => PopulateDrives();
     }
 }

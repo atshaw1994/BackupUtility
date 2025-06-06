@@ -64,6 +64,8 @@ namespace BackupUtility.ViewModels
                 }
             }
         }
+        public bool IsIdle => !_isBackupInProgress;
+
         private readonly List<string> Logs = [];
         public event PropertyChangedEventHandler? PropertyChanged;
         private CancellationTokenSource? _backupCancellationTokenSource;
