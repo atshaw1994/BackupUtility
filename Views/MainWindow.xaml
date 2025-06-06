@@ -153,10 +153,10 @@
                 </Grid>
             </StackPanel>
             <Border x:Name="InProgressOverlay"
-                Background="#000000"
-                Opacity="0.8"
-                Margin="0,32,0,46"
-                Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    Background="#000000"
+                    Opacity="0.8"
+                    Margin="0,32,0,46"
+                    Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"/>
         </Grid>
     </Border>
 </Window>
