@@ -20,9 +20,6 @@
         Foreground="{DynamicResource Window.Foreground}"
         WindowStyle="None"
         StateChanged="Window_StateChanged">
-    <Window.DataContext>
-        <vm:MainWindowViewModel/>
-    </Window.DataContext>
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32" ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
     </WindowChrome.WindowChrome>

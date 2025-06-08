@@ -1,13 +1,12 @@
 ﻿using Microsoft.Win32;
-using System.Collections.ObjectModel;
 
-namespace BackupUtility
+namespace BackupUtility.Helpers
 {
     public static class InstalledAppsFromRegistry
     {
-        public static ObservableCollection<string> GetInstalledApps()
+        public static List<string> GetInstalledApps()
         {
-            var displayNames = new ObservableCollection<string>();
+            var displayNames = new List<string>();
 
             // Get display names from HKLM
             GetDisplayNamesFromRegistry(RegistryHive.LocalMachine, @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall", displayNames);
@@ -17,14 +16,14 @@ namespace BackupUtility
             GetDisplayNamesFromRegistry(RegistryHive.CurrentUser, @"Software\Microsoft\Windows\CurrentVersion\Uninstall", displayNames);
 
             // Process and filter the display names
-            return new ObservableCollection<string>(displayNames
+            return [.. displayNames
                 .Where(dn => !string.IsNullOrEmpty(dn?.Trim())) // Trim and filter out null or empty
                 .Select(dn => dn!.Trim()) // Now it's safe to dereference with ! as we've filtered
                 .Distinct(StringComparer.InvariantCultureIgnoreCase)
-                .OrderBy(dn => dn));
+                .OrderBy(dn => dn)];
         }
 
-        private static void GetDisplayNamesFromRegistry(RegistryHive hive, string subKeyPath, ObservableCollection<string> displayNames)
+        private static void GetDisplayNamesFromRegistry(RegistryHive hive, string subKeyPath, List<string> displayNames)
         {
             using RegistryKey? baseKey = RegistryKey.OpenBaseKey(hive, RegistryView.Default);
             using RegistryKey? uninstallKey = baseKey.OpenSubKey(subKeyPath);

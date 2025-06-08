@@ -1,6 +1,10 @@
-﻿using BackupUtility.Models;
+﻿using BackupUtility.Commands;
+using BackupUtility.Helpers;
+using BackupUtility.Models;
+using BackupUtility.Services.Interfaces;
 using BackupUtility.Views;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -10,43 +14,32 @@ namespace BackupUtility.ViewModels
     public class MainWindowViewModel : BaseViewModel
     {
         public ObservableCollection<BackupObject> BackupObjects { get; set; }
-        public DriveInfo _BackupDrive;
-        public DriveInfo BackupDrive
+
+        private DriveInfo? _backupDrive;
+        public DriveInfo? BackupDrive
         {
-            get => _BackupDrive;
+            get => _backupDrive;
             set
             {
-                if (SetProperty(ref _BackupDrive, value))
-                {
-                    if (_BackupDrive != null)
-                    {
-                        Properties.Settings.Default.BackupDriveLetter = _BackupDrive.Name[..2];
-                        Properties.Settings.Default.Save();
-                    }
-                    else
-                    {
-                        Properties.Settings.Default.BackupDriveLetter = string.Empty;
-                        Properties.Settings.Default.Save();
-                    }
-                }
+                if (SetProperty(ref _backupDrive, value))
+                    _settingsService.BackupDriveLetter = _backupDrive?.Name[..2] ?? string.Empty;
             }
         }
-        private ObservableCollection<DriveInfo> _DrivesList;
+
+        private ObservableCollection<DriveInfo> _drivesList;
         public ObservableCollection<DriveInfo> DrivesList
         {
-            get => _DrivesList;
-            set => SetProperty(ref _DrivesList, value);
+            get => _drivesList;
+            set => SetProperty(ref _drivesList, value);
         }
+
         private string _statusMessage;
         public string StatusMessage
         {
             get => _statusMessage;
-            set
-            {
-                SetProperty(ref _statusMessage, value);
-                Logs.Add($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: {value}\n");
-            }
+            set => SetProperty(ref _statusMessage, value);
         }
+
         private bool _isBackupInProgress;
         public bool IsBackupInProgress
         {
@@ -58,18 +51,17 @@ namespace BackupUtility.ViewModels
                 ((RelayCommand)CancelBackupCommand).RaiseCanExecuteChanged();
             }
         }
+
         private int _backupProgress;
         public int BackupProgress
         {
             get => _backupProgress;
             set => SetProperty(ref _backupProgress, value);
         }
+
         public bool IsIdle => !_isBackupInProgress;
 
-        private readonly List<string> Logs = [];
-        private CancellationTokenSource? _backupCancellationTokenSource;
-        private readonly DispatcherTimer _backupSchedulerTimer;
-
+        // --- Commands ---
         public ICommand StartBackupCommand { get; }
         public ICommand AddSourceCommand { get; }
         public ICommand EditSourceCommand { get; }
@@ -77,117 +69,149 @@ namespace BackupUtility.ViewModels
         public ICommand CancelBackupCommand { get; }
         public ICommand PopulateDrivesCommand { get; }
 
-        public MainWindowViewModel()
+        // --- Private fields for injected services ---
+        private readonly IBackupService _backupService;
+        private readonly ISettingsService _settingsService;
+        private readonly IDriveService _driveService;
+        private readonly IBackupObjectStorageService _backupObjectStorageService;
+        private readonly IDialogService _dialogService;
+        private readonly ILogger _logger;
+
+        // --- Other private fields ---
+        private CancellationTokenSource? _backupCancellationTokenSource;
+        private readonly DispatcherTimer _backupSchedulerTimer;
+
+        public MainWindowViewModel(
+            IBackupService backupService,
+            ISettingsService settingsService,
+            IDriveService driveService,
+            IBackupObjectStorageService backupObjectStorageService,
+            IDialogService dialogService,
+            ILogger logger)
         {
-            StartBackupCommand = new RelayCommand(PerformBackupAsync, CanStartBackup);
+            // Assign injected services to private fields
+            _backupService = backupService ?? throw new ArgumentNullException(nameof(backupService));
+            _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
+            _driveService = driveService ?? throw new ArgumentNullException(nameof(driveService));
+            _backupObjectStorageService = backupObjectStorageService ?? throw new ArgumentNullException(nameof(backupObjectStorageService));
+            _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+            // Initialize Commands
+            StartBackupCommand = new RelayCommand(ExecuteStartBackupAsync, CanStartBackup);
             CancelBackupCommand = new RelayCommand(CancelBackup, (parameter) => IsBackupInProgress);
-            AddSourceCommand = new RelayCommand(AddBackupObjectAsync);
-            EditSourceCommand = new RelayCommand(EditBackupObjectAsync);
-            RemoveSourceCommand = new RelayCommand(RemoveBackupObjecAsync);
-            PopulateDrivesCommand = new RelayCommand(PopulateDrivesAsync);
-            _DrivesList = [];
-            PopulateDrivesAsync();
+            AddSourceCommand = new RelayCommand(ExecuteAddBackupObjectAsync);
+            EditSourceCommand = new RelayCommand(ExecuteEditBackupObjectAsync);
+            RemoveSourceCommand = new RelayCommand(ExecuteRemoveBackupObjectAsync);
+            PopulateDrivesCommand = new RelayCommand(ExecutePopulateDrivesAsync);
+
+            // Initialize Collections (always do this before using them)
             BackupObjects = [];
-            Task.Run(LoadBackupObjectsAsync).Wait();
-            _BackupDrive = new("C:");
+            _drivesList = [];
+
+            // Initialize other simple properties
             _statusMessage = "";
             IsBackupInProgress = false;
             _backupProgress = 0;
+
+            // Initialize and Start the Scheduler Timer
             _backupSchedulerTimer = new() { Interval = TimeSpan.FromSeconds(1) };
             _backupSchedulerTimer.Tick += BackupSchedulerTimer_Tick;
             _backupSchedulerTimer.Start();
+
+            // Perform initial async loading
+            InitializeDataAsync();
+        }
+
+        private async void InitializeDataAsync()
+        {
+            await ExecutePopulateDrivesAsync(); // Populate drives first
+            await LoadBackupObjectsAsync();     // Then load backup objects
+
+            // Restore previously selected drive based on settings after drives are loaded
+            string savedDriveLetter = _settingsService.BackupDriveLetter;
+            if (!string.IsNullOrEmpty(savedDriveLetter))
+            {
+                DriveInfo? previouslySelected = DrivesList.FirstOrDefault(
+                    d => d.Name.StartsWith(savedDriveLetter, StringComparison.OrdinalIgnoreCase));
+
+                if (previouslySelected != null)
+                    BackupDrive = previouslySelected;
+                else if (DrivesList.Any())
+                    BackupDrive = DrivesList.First();
+            }
+            else if (DrivesList.Any())
+                BackupDrive = DrivesList.First();
         }
 
         private void BackupSchedulerTimer_Tick(object? sender, EventArgs e)
         {
-            if (DateTime.Now.TimeOfDay == new TimeSpan(6, 0, 0))
+            // FUTURE: Custom backup scheduling
+
+            if (DateTime.Now.TimeOfDay == new TimeSpan(6, 0, 0) && !IsBackupInProgress)
                 if (StartBackupCommand != null && StartBackupCommand.CanExecute(null))
                     StartBackupCommand.Execute(null);
         }
 
-        private async void LoadBackupObjectsAsync()
+        private async Task LoadBackupObjectsAsync()
         {
-            string loadFilePath = "backup_objects.json";
-            List<BackupObject> loadedBackupItems = await BackupObjectSerializer.DeserializeListFromFileAsync(loadFilePath);
-            foreach (BackupObject backupObject in loadedBackupItems)
-                BackupObjects.Add(backupObject);
-            _backupProgress = 0;
-            if (BackupObjects.Count > 0)
-                BackupObjects[0].IsFirst = true;
+            var loadedBackupItems = await _backupObjectStorageService.LoadBackupObjectsAsync();
+            // Ensure collection is updated on the UI thread if not already on it
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                BackupObjects.Clear();
+                foreach (BackupObject backupObject in loadedBackupItems)
+                    BackupObjects.Add(backupObject);
+                if (BackupObjects.Count > 0)
+                    BackupObjects[0].IsFirst = true;
+            });
         }
 
         private void CancelBackup(object? parameter = null!) => _backupCancellationTokenSource?.Cancel();
 
         private bool CanStartBackup(object? parameter) => !IsBackupInProgress && BackupDrive is not null;
 
-        private async void PerformBackupAsync(object? parameter = null!)
+        private async void ExecuteStartBackupAsync(object? parameter = null!)
         {
-            if (!Directory.Exists($"{BackupDrive.RootDirectory}\\Logs\\"))
-                Directory.CreateDirectory($"{BackupDrive.RootDirectory}\\Logs\\");
-            using (File.Create($"{BackupDrive.RootDirectory}\\Logs\\Log_{DateTime.Now:yyyyMMdd}.txt")) { }
-            using (File.Create($"{BackupDrive.RootDirectory}\\AppsList.txt")) { }
+            // Use _logger directly or rely on BackupService's internal logging
             StatusMessage = "[START] Backup started...";
+            _logger.Log("Backup process initiated.");
             IsBackupInProgress = true;
             BackupProgress = 0;
 
             _backupCancellationTokenSource = new CancellationTokenSource();
             CancellationToken cancellationToken = _backupCancellationTokenSource.Token;
 
+            // Create IProgress instances for the service to report back to the ViewModel
+            var progressHandler = new Progress<int>(p => BackupProgress = p);
+            var statusHandler = new Progress<string>(s => StatusMessage = s);
+
             try
             {
-                await Task.Run(() =>
+                if (BackupDrive?.RootDirectory == null)
                 {
-                    string backupDestination = $"{BackupDrive.RootDirectory}\\Backup_{DateTime.Now:yyyyMMdd}";
-                    Directory.CreateDirectory(backupDestination);
-                    long totalFiles = BackupObjects.Sum(backupObject => Directory.GetFiles(backupObject.Source, "*.*", SearchOption.AllDirectories).Length);
-                    long processedFiles = 0;
+                    StatusMessage = "[ERR] Backup drive not selected or invalid.";
+                    _logger.LogError("Backup failed: No valid backup drive selected.");
+                    return;
+                }
 
-                    foreach (BackupObject backupObject in BackupObjects)
-                    {
-                        if (cancellationToken.IsCancellationRequested)
-                        {
-                            StatusMessage = "[STOP] Backup cancelled.";
-                            return;
-                        }
-
-                        if (Directory.Exists(backupObject.Source))
-                        {
-                            // Calculate currentBackupObjectFiles once for this object
-                            long currentBackupObjectFiles = Directory.GetFiles(backupObject.Source, "*.*", SearchOption.AllDirectories).Length;
-
-                            string finalDestPathForSource = Path.Combine(backupDestination, backupObject.Destination, new DirectoryInfo(backupObject.Source).Name);
-
-                            CopyChanges(backupObject.Source,
-                                finalDestPathForSource,
-                                new Progress<int>(p =>
-                                {
-                                    if (totalFiles > 0) BackupProgress = (int)((double)processedFiles / totalFiles * 100);
-                                }),
-                                ref processedFiles,
-                                currentBackupObjectFiles,
-                                cancellationToken: cancellationToken);
-                        }
-                        else
-                        {
-                            StatusMessage = $"[ERR] Source folder '{backupObject.Source}' does not exist.";
-                        }
-                    }
-
-                    if (!cancellationToken.IsCancellationRequested)
-                    {
-                        StatusMessage = "[END] Backup completed successfully.";
-                        BackupProgress = 100;
-                    }
-                }, cancellationToken);
+                await _backupService.PerformBackupAsync(
+                    BackupDrive.RootDirectory.FullName,
+                    BackupObjects,
+                    progressHandler, // Pass progress reporter
+                    statusHandler,   // Pass status reporter
+                    cancellationToken);
             }
             catch (OperationCanceledException)
             {
                 StatusMessage = "[STOP] Backup cancelled.";
+                _logger.LogWarning("Backup process cancelled by user.");
                 BackupProgress = 0;
             }
             catch (Exception ex)
             {
                 StatusMessage = $"[ERR] Backup failed: {ex.Message}";
+                _logger.LogError($"Backup failed with an error: {ex.Message}", ex);
                 BackupProgress = 0;
             }
             finally
@@ -195,166 +219,63 @@ namespace BackupUtility.ViewModels
                 IsBackupInProgress = false;
                 _backupCancellationTokenSource?.Dispose();
                 _backupCancellationTokenSource = null;
-
-                string logs_str = "";
-                foreach (string log in Logs)
-                    logs_str += log + "\n";
-
-                File.AppendAllText($"{BackupDrive.RootDirectory}\\Logs\\Log_{DateTime.Now:yyyyMMdd}.txt", logs_str);
-
-                File.AppendAllText($"{BackupDrive.RootDirectory}\\AppsList.txt", $"Last Updated: {DateTime.Now:MM/dd/yyyy 'at' hh:mm tt}\n\n");
-
-                foreach (string app in InstalledAppsFromRegistry.GetInstalledApps())
-                    File.AppendAllText($"{BackupDrive.RootDirectory}\\AppsList.txt", $"{app}\n");
+                StatusMessage = "[END] Backup process concluded.";
             }
         }
 
-        private void CopyChanges(string sourceDir, string destDir, IProgress<int> progress, ref long processedFiles, long totalFilesInThisSourceDir, CancellationToken cancellationToken)
+        private async void ExecuteAddBackupObjectAsync(object? parameter = null)
         {
-            Directory.CreateDirectory(destDir);
-            long currentFile = 0;
-
-            foreach (string sourceFile in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
+            BackupObject? backupObjectResult = await _dialogService.ShowAddBackupObjectDialogAsync(BackupObjects);
+            if (backupObjectResult != null)
             {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                string relativePath = sourceFile[(sourceDir.Length + 1)..];
-                string destFile = Path.Combine(destDir, relativePath);
-                Directory.CreateDirectory(Path.GetDirectoryName(destFile)!);
-
-                FileInfo sourceInfo = new(sourceFile);
-                FileInfo destInfo = new(destFile);
-
-                if (!File.Exists(destFile) || sourceInfo.LastWriteTime > destInfo.LastWriteTime || sourceInfo.Length != destInfo.Length)
-                {
-                    try
-                    {
-                        StatusMessage = $"[COPY] Copying '{sourceInfo.Name}'...";
-                        File.Copy(sourceFile, destFile, true);
-                    }
-                    catch (Exception ex)
-                    {
-                        string errorMessage = $"[ERR] Error copying '{sourceInfo.Name}': {ex.Message}";
-                        StatusMessage = errorMessage;
-                        Logs.Add($"{errorMessage} - Full Details: {ex}"); // Add this line
-                    }
-                }
-                else
-                {
-                    StatusMessage = $"[INFO] File '{sourceInfo.Name}' already up to date. Continuing...";
-                }
-
-                currentFile++; // Increment currentFileInThisSourceDir
-                processedFiles++; // Increment the global counter
-
-                if (totalFilesInThisSourceDir > 0)
-                {
-                    progress?.Report((int)((double)currentFile / totalFilesInThisSourceDir * 100));
-                }
-            }
-
-            // Logic to delete extra files in destination (check for cancellation)
-            foreach (string destEntry in Directory.GetFileSystemEntries(destDir, "*", SearchOption.AllDirectories))
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                string relativePath = destEntry[(destDir.Length + 1)..];
-                string sourceEntry = Path.Combine(sourceDir, relativePath);
-
-                if (!File.Exists(sourceEntry) && !Directory.Exists(sourceEntry))
-                {
-                    try
-                    {
-                        if (File.Exists(destEntry))
-                            File.Delete(destEntry);
-                        else if (Directory.Exists(destEntry))
-                            Directory.Delete(destEntry, true);
-                    }
-                    catch (Exception ex)
-                    {
-                        StatusMessage = $"[ERR] Error deleting '{destEntry}': {ex.Message}";
-                        Logs.Add($"[ERR] Error deleting '{destEntry}': {ex.Message} - Full Details: {ex}"); // Add this line
-                    }
-                }
+                BackupObjects.Add(backupObjectResult);
+                await _backupObjectStorageService.SaveBackupObjectsAsync([.. BackupObjects]);
+                if (BackupObjects.Count > 0) BackupObjects[0].IsFirst = true;
+                _logger.Log($"Added new backup object: {backupObjectResult.Source}");
             }
         }
 
-        private async void AddBackupObjectAsync(object? parameter = null)
+        private async void ExecuteEditBackupObjectAsync(object? parameter = null!)
         {
-            BackupObjectForm backupForm = new(BackupObjects);
-            if (backupForm.ShowDialog() == true)
+            if (parameter is BackupObject backupObjectToEdit)
             {
-                BackupObjects.Add(backupForm.BackupObjectResult);
-                List<BackupObject> backupObjectList = [.. BackupObjects];
-                string saveFilePath = "backup_objects.json";
-                await BackupObjectSerializer.SerializeListToFileAsync(backupObjectList, saveFilePath);
-                BackupObjects[0].IsFirst = true;
-            }
-        }
-
-        private async void EditBackupObjectAsync(object? parameter = null!)
-        {
-            if (parameter is BackupObject backupObject)
-            {
-                BackupObjectForm backupForm = new(backupObject, BackupObjects);
-                if (backupForm.ShowDialog() == true)
+                BackupObject? updatedObject = await _dialogService.ShowEditBackupObjectDialogAsync(backupObjectToEdit, BackupObjects);
+                if (updatedObject != null)
                 {
-                    BackupObjects.Remove(backupObject);
-                    BackupObjects.Add(backupForm.BackupObjectResult);
-                    List<BackupObject> backupObjectList = [.. BackupObjects];
-                    string saveFilePath = "backup_objects.json";
-                    await BackupObjectSerializer.SerializeListToFileAsync(backupObjectList, saveFilePath);
+                    // Find the original object and update its properties, or replace it if it's a new instance
+                    int index = BackupObjects.IndexOf(backupObjectToEdit);
+                    if (index != -1)
+                    {
+                        // Assuming BackupObject has properties to update or can be replaced
+                        BackupObjects[index] = updatedObject; // Replace the object
+                    }
+                    await _backupObjectStorageService.SaveBackupObjectsAsync([.. BackupObjects]);
+                    _logger.Log($"Edited backup object: {updatedObject.Source}");
                 }
             }
         }
 
-        private async void RemoveBackupObjecAsync(object? parameter = null!)
+        private async void ExecuteRemoveBackupObjectAsync(object? parameter = null!)
         {
             if (parameter is BackupObject bo_parameter)
+            {
                 BackupObjects.Remove(bo_parameter);
-            List<BackupObject> backupObjectList = [.. BackupObjects];
-            string saveFilePath = "backup_objects.json";
-            await BackupObjectSerializer.SerializeListToFileAsync(backupObjectList, saveFilePath);
+                await _backupObjectStorageService.SaveBackupObjectsAsync([.. BackupObjects]);
+                _logger.Log($"Removed backup object: {bo_parameter.Source}");
+                if (BackupObjects.Count > 0) BackupObjects[0].IsFirst = true;
+            }
         }
 
-        private async void PopulateDrivesAsync(object? parameter = null!)
+        private async Task ExecutePopulateDrivesAsync(object? parameter = null!)
         {
-            await Task.Run(() =>
+            var drives = await _driveService.GetLogicalDrivesAsync();
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
-                foreach (string driveletter in Directory.GetLogicalDrives())
-                {
-                    DriveInfo driveInfo = new(driveletter);
-                    if (driveInfo.IsReady)
-                        DrivesList.Add(driveInfo);
-                }
-                string savedDriveLetter = Properties.Settings.Default.BackupDriveLetter;
-                if (!string.IsNullOrEmpty(savedDriveLetter))
-                {
-                    DriveInfo previouslySelected = DrivesList.FirstOrDefault(
-                        d => d.Name.StartsWith(savedDriveLetter, StringComparison.OrdinalIgnoreCase))!;
-
-                    if (previouslySelected != null)
-                        BackupDrive = previouslySelected;
-                    else if (DrivesList.Any())
-                        BackupDrive = DrivesList.First();
-                }
-                else if (DrivesList.Any())
-                    BackupDrive = DrivesList.First();
+                DrivesList.Clear();
+                foreach (var drive in drives)
+                    DrivesList.Add(drive);
             });
         }
 
-        public static string FormatPath(string path)
-        {
-            if (string.IsNullOrEmpty(path)) return "";
-
-            string[] parts = path.Split(System.IO.Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries);
-
-            if (parts.Length <= 3)
-                return path;
-
-            string firstPart = parts[0];
-            string lastPart = parts[^1];
-
-            return $"/{firstPart}/.../{lastPart}/";
-        }
     }
 }

@@ -1,5 +1,10 @@
 ﻿using System.Windows;
-using BackupUtility.Views.Themes;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using BackupUtility.Services.Interfaces;
+using BackupUtility.Services.Implementations;
+using BackupUtility.ViewModels;
+using BackupUtility.Views;
 
 namespace BackupUtility
 {
@@ -8,50 +13,52 @@ namespace BackupUtility
     /// </summary>
     public partial class App : Application
     {
+        private readonly IHost _host;
+
         public App()
         {
-            ThemeManager.ThemeChanged += OnThemeChanged!;
-            ApplyCurrentTheme(); // Apply initial theme
+            _host = Host.CreateDefaultBuilder()
+                .ConfigureServices((context, services) =>
+                {
+                    // Register services
+                    services.AddSingleton<ILogger, ConsoleLogger>(); // Singleton for logger
+                    services.AddSingleton<IDriveService, DriveService>();
+                    services.AddSingleton<ISettingsService, SettingsService>();
+                    services.AddSingleton<IBackupObjectStorageService, BackupObjectStorageService>();
+                    services.AddSingleton<IDialogService, DialogService>();
+                    services.AddSingleton<IBackupService, BackupService>();
+
+                    // Register ViewModels
+                    services.AddSingleton<MainWindowViewModel>();
+                    services.AddSingleton<BackupObjectFormViewModel>();
+
+                    // Register MainWindow itself
+                    services.AddSingleton<MainWindow>();
+
+                })
+                .Build();
         }
 
-        private void OnThemeChanged(object sender, ThemeChangedEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
-            // Apply the new theme based on e.NewTheme
-            ApplyTheme(e.NewTheme);
+            await _host.StartAsync();
+
+            // Resolve the MainWindow from the DI container
+            var mainWindow = _host.Services.GetRequiredService<MainWindow>();
+
+            // Resolve the MainWindowViewModel from the DI container
+            // and assign it as the DataContext
+            mainWindow.DataContext = _host.Services.GetRequiredService<MainWindowViewModel>();
+
+            mainWindow.Show();
+
+            base.OnStartup(e);
         }
 
-        private static void ApplyCurrentTheme()
+        protected override async void OnExit(ExitEventArgs e)
         {
-            // Apply ThemeManager.CurrentTheme
-            ApplyTheme(ThemeManager.CurrentTheme);
+            await _host.StopAsync();
+            base.OnExit(e);
         }
-
-        private static void ApplyTheme(ThemeManager.WindowsTheme theme)
-        {
-            Application app = Current;
-            if (app == null || app.Resources == null) return;
-
-            ResourceDictionary themeDictionary = [];
-            switch (theme)
-            {
-                case ThemeManager.WindowsTheme.Light:
-                    themeDictionary.Source = new Uri("Views/Themes/Light.xaml", UriKind.Relative);
-                    break;
-                case ThemeManager.WindowsTheme.Dark:
-                    themeDictionary.Source = new Uri("Views/Themes/Dark.xaml", UriKind.Relative);
-                    break;
-            }
-
-            // Merge the theme dictionary
-            var existingTheme = app.Resources.MergedDictionaries.FirstOrDefault(d =>
-                d.Source?.OriginalString.StartsWith("Views/Themes/", StringComparison.OrdinalIgnoreCase) == true);
-            if (existingTheme != null)
-            {
-                app.Resources.MergedDictionaries.Remove(existingTheme);
-            }
-            app.Resources.MergedDictionaries.Add(themeDictionary);
-        }
-
     }
-
 }
