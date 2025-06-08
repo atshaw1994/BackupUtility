@@ -15,13 +15,10 @@ namespace BackupUtility.Services.Implementations
         {
             await Task.Run(() =>
             {
-                // Initial setup and logging moved from ViewModel
                 string logDirectory = Path.Combine(backupDriveRoot, "Logs");
-                Directory.CreateDirectory(logDirectory); // Ensure log directory exists
-                string logFilePath = Path.Combine(logDirectory, $"Log_{DateTime.Now:yyyyMMdd}.txt");
-
-                // Start logging session
-                File.AppendAllText(logFilePath, $"--- Backup Session Started: {DateTime.Now} ---\n");
+                string logFilePath = Path.Combine(logDirectory, $"Log_{DateTime.Now:yyyyMMdd_HHmmss}.txt");
+                _logger.SetLogFile(logFilePath);
+                _logger.Log($"--- Backup Session Started: {DateTime.Now} ---");
 
                 status.Report("[START] Backup started...");
                 _logger.Log($"Backup started at {DateTime.Now}");
@@ -44,7 +41,7 @@ namespace BackupUtility.Services.Implementations
                     catch (Exception ex)
                     {
                         status.Report($"[ERR] Error counting files in '{backupObject.Source}': {ex.Message}");
-                        _logger.LogError($"Error counting files in '{backupObject.Source}': {ex.Message}");
+                        _logger.LogError($"Error counting files in '{backupObject.Source}': {ex.Message}", ex); // Pass exception
                         return 0;
                     }
                 });
@@ -53,7 +50,7 @@ namespace BackupUtility.Services.Implementations
 
                 foreach (BackupObject backupObject in backupObjects)
                 {
-                    cancellationToken.ThrowIfCancellationRequested(); // Check cancellation for each object
+                    cancellationToken.ThrowIfCancellationRequested();
 
                     if (!Directory.Exists(backupObject.Source))
                     {
@@ -67,7 +64,7 @@ namespace BackupUtility.Services.Implementations
                     CopyChanges(backupObject.Source, finalDestPathForSource, status,
                                 (currentFileInSourceDir) =>
                                 {
-                                    Interlocked.Increment(ref processedFiles); // Safely increment global counter
+                                    Interlocked.Increment(ref processedFiles);
                                     if (totalFiles > 0)
                                         progress.Report((int)((double)processedFiles / totalFiles * 100));
                                 },
@@ -80,14 +77,29 @@ namespace BackupUtility.Services.Implementations
                     _logger.Log($"Backup completed successfully at {DateTime.Now}");
                 }
                 else
+                {
+                    status.Report("[CANCELED] Backup cancelled.");
                     _logger.Log($"Backup cancelled at {DateTime.Now}");
+                }
+
 
                 // Write installed apps list
-                var installedApps = GetInstalledAppsAsync().Result; // Call the service method
+                var installedApps = GetInstalledAppsAsync().Result;
                 string appsListFilePath = Path.Combine(backupDriveRoot, "AppsList.txt");
-                File.WriteAllText(appsListFilePath, $"Last Updated: {DateTime.Now:MM/dd/yyyy 'at' hh:mm tt}\n\n");
-                File.AppendAllLines(appsListFilePath, installedApps);
-                File.AppendAllText(logFilePath, $"--- Backup Session Ended: {DateTime.Now} ---\n\n");
+                try
+                {
+                    File.WriteAllText(appsListFilePath, $"Last Updated: {DateTime.Now:MM/dd/yyyy 'at' hh:mm tt}\n\n");
+                    File.AppendAllLines(appsListFilePath, installedApps);
+                    _logger.Log($"Installed applications list written to '{appsListFilePath}'");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Error writing installed applications list: {ex.Message}", ex);
+                }
+
+                // End logging session (now uses the _logger)
+                _logger.Log($"--- Backup Session Ended: {DateTime.Now} ---");
+
             }, cancellationToken);
         }
 

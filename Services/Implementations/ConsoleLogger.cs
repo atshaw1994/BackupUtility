@@ -1,4 +1,5 @@
 ﻿using BackupUtility.Services.Interfaces;
+using System.IO;
 
 // NOTE: Replace console logging with file output
 
@@ -6,28 +7,48 @@ namespace BackupUtility.Services.Implementations
 {
     public class ConsoleLogger : ILogger
     {
-        public void Log(string message)
+        private string? _logFilePath;
+        private static readonly Lock _fileLock = new(); // For thread-safe file access
+
+        public void SetLogFile(string logFilePath)
         {
-            Console.WriteLine($"[INFO] {DateTime.Now:HH:mm:ss} - {message}");
+            _logFilePath = logFilePath;
+            if (!File.Exists(logFilePath)) 
+                File.Create(logFilePath).Close();
+            Directory.CreateDirectory(Path.GetDirectoryName(_logFilePath)!);
         }
 
-        public void LogWarning(string message)
+        private void WriteToFile(string level, string message, Exception? ex)
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"[WARN] {DateTime.Now:HH:mm:ss} - {message}");
-            Console.ResetColor();
-        }
+            if (string.IsNullOrEmpty(_logFilePath))
+            {
+                // Fallback to Console/Debug output if log file not set (or throw an error)
+                Console.WriteLine($"[{level}] {DateTime.Now:HH:mm:ss} {message} {(ex != null ? $" - Exception: {ex.Message}" : "")}");
+                System.Diagnostics.Debug.WriteLine($"[{level}] {DateTime.Now:HH:mm:ss} {message} {(ex != null ? $" - Exception: {ex.Message}" : "")}");
+                return;
+            }
 
-        public void LogError(string message, Exception? ex = null)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"[ERROR] {DateTime.Now:HH:mm:ss} - {message}");
+            string logEntry = $"[{level}] {DateTime.Now:HH:mm:ss} {message}";
             if (ex != null)
             {
-                Console.WriteLine($"\tException: {ex.Message}");
-                Console.WriteLine($"\tStack Trace: {ex.StackTrace}");
+                logEntry += $" - Exception: {ex.Message}";
+                if (ex.InnerException != null)
+                    logEntry += $" (Inner: {ex.InnerException.Message})";
+                logEntry += $"\n{ex.StackTrace}"; // Include stack trace for errors
             }
-            Console.ResetColor();
+            logEntry += "\n";
+
+            // Use a lock to prevent multiple threads from writing to the file simultaneously
+            lock (_fileLock)
+            {
+                File.AppendAllText(_logFilePath, logEntry);
+            }
         }
+
+        public void Log(string message) => WriteToFile("INFO", message, null);
+
+        public void LogWarning(string message) => WriteToFile("WARN", message, null);
+
+        public void LogError(string message, Exception? ex = null) => WriteToFile("ERROR", message, ex);
     }
 }
