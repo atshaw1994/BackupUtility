@@ -3,7 +3,13 @@
   <Profiles />
   <Settings>
     <Setting Name="BackupDriveLetter" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">J:</Value>
+    </Setting>
+    <Setting Name="BackupTime" Type="System.TimeSpan" Scope="User">
+      <Value Profile="(Default)">06:00:00</Value>
+    </Setting>
+    <Setting Name="IsUpgradeNeeded" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>

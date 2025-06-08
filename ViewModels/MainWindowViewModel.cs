@@ -1,11 +1,11 @@
 ﻿using BackupUtility.Commands;
-using BackupUtility.Helpers;
 using BackupUtility.Models;
 using BackupUtility.Services.Interfaces;
 using BackupUtility.Views;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -22,7 +22,40 @@ namespace BackupUtility.ViewModels
             set
             {
                 if (SetProperty(ref _backupDrive, value))
+                {
                     _settingsService.BackupDriveLetter = _backupDrive?.Name[..2] ?? string.Empty;
+                    if (!_isInitializing)
+                    {
+                        _settingsService.SaveSettings(); // Only save when user interacts
+                        _logger.Log($"Backup drive changed by user. Saved: {_settingsService.BackupDriveLetter}");
+                    }
+                    else
+                    {
+                        _logger.Log($"Backup drive set programmatically during initialization. Value: {_settingsService.BackupDriveLetter}");
+                    }
+                }
+            }
+        }
+
+        private TimeSpan _backupTime;
+        public TimeSpan BackupTime
+        {
+            get => _backupTime;
+            set
+            {
+                if (SetProperty(ref _backupTime, value))
+                {
+                    _settingsService.BackupTime = _backupTime;
+                    if (!_isInitializing)
+                    {
+                        _settingsService.SaveSettings(); // Only save when user interacts
+                        _logger.Log($"Backup time updated by user. Saved: {value:hh\\:mm}");
+                    }
+                    else
+                    {
+                        _logger.Log($"Backup time set programmatically during initialization. Value: {value:hh\\:mm}");
+                    }
+                }
             }
         }
 
@@ -67,6 +100,7 @@ namespace BackupUtility.ViewModels
         public ICommand EditSourceCommand { get; }
         public ICommand RemoveSourceCommand { get; }
         public ICommand CancelBackupCommand { get; }
+        public ICommand EditBackupTimeCommand { get; }
         public ICommand PopulateDrivesCommand { get; }
 
         // --- Private fields for injected services ---
@@ -80,6 +114,8 @@ namespace BackupUtility.ViewModels
         // --- Other private fields ---
         private CancellationTokenSource? _backupCancellationTokenSource;
         private readonly DispatcherTimer _backupSchedulerTimer;
+
+        private bool _isInitializing;
 
         public MainWindowViewModel(
             IBackupService backupService,
@@ -103,6 +139,7 @@ namespace BackupUtility.ViewModels
             AddSourceCommand = new RelayCommand(ExecuteAddBackupObjectAsync);
             EditSourceCommand = new RelayCommand(ExecuteEditBackupObjectAsync);
             RemoveSourceCommand = new RelayCommand(ExecuteRemoveBackupObjectAsync);
+            EditBackupTimeCommand = new AsyncRelayCommand(ExecuteEditBackupTimeAsync);
             PopulateDrivesCommand = new RelayCommand(ExecutePopulateDrivesAsync);
 
             // Initialize Collections (always do this before using them)
@@ -125,30 +162,61 @@ namespace BackupUtility.ViewModels
 
         private async void InitializeDataAsync()
         {
-            await ExecutePopulateDrivesAsync(); // Populate drives first
-            await LoadBackupObjectsAsync();     // Then load backup objects
+            _isInitializing = true;
 
-            // Restore previously selected drive based on settings after drives are loaded
-            string savedDriveLetter = _settingsService.BackupDriveLetter;
-            if (!string.IsNullOrEmpty(savedDriveLetter))
+            try
             {
-                DriveInfo? previouslySelected = DrivesList.FirstOrDefault(
-                    d => d.Name.StartsWith(savedDriveLetter, StringComparison.OrdinalIgnoreCase));
+                _settingsService.LoadSettings();
 
-                if (previouslySelected != null)
-                    BackupDrive = previouslySelected;
+                string driveLetterForLogs = _settingsService.BackupDriveLetter;
+
+                // Add a fallback if, for some reason, the drive letter is still empty (e.g., first run, no settings saved yet)
+                if (string.IsNullOrEmpty(driveLetterForLogs))
+                {
+                    driveLetterForLogs = AppDomain.CurrentDomain.BaseDirectory;
+                    _logger.LogWarning("Backup drive not set in settings. Using application base directory for logs.");
+                }
+
+                // Construct the full log file path.
+                string logDirectory = Path.Combine(driveLetterForLogs, "Logs");
+                Directory.CreateDirectory(logDirectory);
+                string logFileName = $"Log_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
+                string fullLogFilePath = Path.Combine(logDirectory, logFileName);
+
+                // Call your Logger's SetLogFile method with the now correct path
+                _logger.SetLogFile(fullLogFilePath);
+                _logger.Log($"Logger initialized. Log file: {fullLogFilePath}"); // Log a confirmation message
+
+                await ExecutePopulateDrivesAsync(); // Populate drives first
+                await LoadBackupObjectsAsync();     // Then load backup objects
+
+                // Restore previously selected drive based on settings after drives are loaded
+                string savedDriveLetter = _settingsService.BackupDriveLetter;
+                if (!string.IsNullOrEmpty(savedDriveLetter))
+                {
+                    DriveInfo? previouslySelected = DrivesList.FirstOrDefault(
+                        d => d.Name.StartsWith(savedDriveLetter, StringComparison.OrdinalIgnoreCase));
+
+                    if (previouslySelected != null)
+                        BackupDrive = previouslySelected;
+                    else if (DrivesList.Any())
+                        BackupDrive = DrivesList.First();
+                }
                 else if (DrivesList.Any())
                     BackupDrive = DrivesList.First();
             }
-            else if (DrivesList.Any())
-                BackupDrive = DrivesList.First();
+            finally
+            {
+                _isInitializing = false; // <--- ENSURE FLAG IS RESET, even if errors occur during initialization
+                _logger.Log("MainWindowViewModel initialization complete. Saving enabled for user interactions.");
+            }
         }
 
         private void BackupSchedulerTimer_Tick(object? sender, EventArgs e)
         {
             // FUTURE: Custom backup scheduling
 
-            if (DateTime.Now.TimeOfDay == new TimeSpan(6, 0, 0) && !IsBackupInProgress)
+            if (BackupTime != TimeSpan.Zero && DateTime.Now.TimeOfDay >= BackupTime && !IsBackupInProgress)
                 if (StartBackupCommand != null && StartBackupCommand.CanExecute(null))
                     StartBackupCommand.Execute(null);
         }
@@ -170,6 +238,22 @@ namespace BackupUtility.ViewModels
         private void CancelBackup(object? parameter = null!) => _backupCancellationTokenSource?.Cancel();
 
         private bool CanStartBackup(object? parameter) => !IsBackupInProgress && BackupDrive is not null;
+
+        private async Task ExecuteEditBackupTimeAsync(object? parameter = null!)
+        {
+            var timeInputViewModel = new BackupTimeWindowViewModel(BackupTime); // Pass current time
+
+            var timeInputWindow = new BackupTimeWindow { DataContext = timeInputViewModel };
+
+            bool? dialogResult = timeInputWindow.ShowDialog();
+
+            if (dialogResult == true)
+            {
+                // User clicked OK and a new time was selected
+                // Update BackupTime with the new time component
+                BackupTime = timeInputViewModel.SelectedTime;
+            }
+        }
 
         private async void ExecuteStartBackupAsync(object? parameter = null!)
         {

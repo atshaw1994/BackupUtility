@@ -5,6 +5,7 @@ using BackupUtility.Services.Interfaces;
 using BackupUtility.Services.Implementations;
 using BackupUtility.ViewModels;
 using BackupUtility.Views;
+using BackupUtility.Properties;
 
 namespace BackupUtility
 {
@@ -21,7 +22,7 @@ namespace BackupUtility
                 .ConfigureServices((context, services) =>
                 {
                     // Register services
-                    services.AddSingleton<ILogger, ConsoleLogger>(); // Singleton for logger
+                    services.AddSingleton<ILogger, Logger>(); // Singleton for logger
                     services.AddSingleton<IDriveService, DriveService>();
                     services.AddSingleton<ISettingsService, SettingsService>();
                     services.AddSingleton<IBackupObjectStorageService, BackupObjectStorageService>();

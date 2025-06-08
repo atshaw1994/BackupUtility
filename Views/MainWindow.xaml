@@ -37,7 +37,7 @@
             CornerRadius="8">
         <Grid x:Name="baseGrid">
             <Grid.RowDefinitions>
-                <RowDefinition Height="40"/>
+                <RowDefinition Height="32"/>
                 <RowDefinition/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
@@ -51,8 +51,8 @@
                 </Grid.ColumnDefinitions>
                 <Image Grid.Column="0" Width="18" Height="18" Source="/Backup.ico" />
                 <TextBlock Grid.Column="1" Margin="4,0,0,0" VerticalAlignment="Center" FontSize="14"
-            Foreground="{DynamicResource CaptionBar.Foreground}"
-            Text="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Title}">
+                           Foreground="{DynamicResource CaptionBar.Foreground}"
+                           Text="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Title}">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Style.Triggers>
@@ -65,25 +65,24 @@
                 </TextBlock>
                 <Button Grid.Column="2" Click="OnMinimizeButtonClick" Style="{DynamicResource CaptionBar.Button}">
                     <Path Width="12" Height="12" Data="M 2,10 H 10" 
-          Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
-          StrokeThickness="1" />
+                          Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                          StrokeThickness="1" />
                 </Button>
                 <Button Name="maximizeButton" Grid.Column="3" Click="OnMaximizeRestoreButtonClick" Style="{DynamicResource CaptionBar.Button}">
                     <Path Width="12" Height="12" Data="M 2,2 v8 h8 v-8z"
-          Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
-          StrokeThickness="1" />
+                          Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                          StrokeThickness="1" />
                 </Button>
-                <Button Name="restoreButton" Grid.Column="3" Click="OnMaximizeRestoreButtonClick" Visibility="Collapsed"
-        Style="{DynamicResource CaptionBar.Button}">
+                <Button Name="restoreButton" Grid.Column="3" Click="OnMaximizeRestoreButtonClick" Visibility="Collapsed" Style="{DynamicResource CaptionBar.Button}">
                     <Path Width="12" Height="12"
-          Data="M 2,4 v6 h6 v-6z M 4,2.5 v-1.5 h7 v7 h-1.5"
-          Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
-          StrokeThickness="1" />
+                          Data="M 2,4 v6 h6 v-6z M 4,2.5 v-1.5 h7 v7 h-1.5"
+                          Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                          StrokeThickness="1" />
                 </Button>
                 <Button Grid.Column="5" Click="OnCloseButtonClick" Style="{DynamicResource CaptionBar.CloseButton}">
                     <Path Width="12" Height="12" Data="M 2,2 l8,8 M 10,2 l-8,8"
-          Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
-          StrokeThickness="1" />
+                          Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                          StrokeThickness="1" />
                 </Button>
             </Grid>
             <StackPanel x:Name="baseStackPanel" Grid.Row="1" Margin="8,0">
@@ -126,7 +125,15 @@
                     </Button>
                 </Grid>
                 <Grid x:Name="BackupTimeGrid">
-                    
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="32"/>
+                    </Grid.RowDefinitions>
+                    <Label Content="Backup Time" Foreground="{DynamicResource Window.Foreground}"/>
+                    <Button x:Name="BackupTimeButton"
+                            Grid.Row="1"
+                            Content="{Binding BackupTime, StringFormat='Backup at {0:hh\\:mm tt}'}"
+                            Command="{Binding EditBackupTimeCommand}"/>
                 </Grid>
                 <Grid x:Name="ListViewGrid">
                     <Grid.RowDefinitions>

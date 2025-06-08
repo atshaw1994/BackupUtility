@@ -25,13 +25,37 @@ namespace BackupUtility.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("J:")]
         public string BackupDriveLetter {
             get {
                 return ((string)(this["BackupDriveLetter"]));
             }
             set {
                 this["BackupDriveLetter"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("06:00:00")]
+        public global::System.TimeSpan BackupTime {
+            get {
+                return ((global::System.TimeSpan)(this["BackupTime"]));
+            }
+            set {
+                this["BackupTime"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsUpgradeNeeded {
+            get {
+                return ((bool)(this["IsUpgradeNeeded"]));
+            }
+            set {
+                this["IsUpgradeNeeded"] = value;
             }
         }
     }
