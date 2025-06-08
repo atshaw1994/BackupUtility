@@ -1,11 +1,9 @@
 ﻿using BackupUtility.Services.Interfaces;
 using System.IO;
 
-// NOTE: Replace console logging with file output
-
 namespace BackupUtility.Services.Implementations
 {
-    public class ConsoleLogger : ILogger
+    public class Logger : ILogger
     {
         private string? _logFilePath;
         private static readonly Lock _fileLock = new(); // For thread-safe file access
