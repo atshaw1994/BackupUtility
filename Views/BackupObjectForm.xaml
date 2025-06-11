@@ -86,7 +86,7 @@
                                           Visibility="{Binding ElementName=DateTimePickerVisibleCheckBox, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}" />
                 </StackPanel>
                 <Button Padding="8" HorizontalAlignment="Right" Command="{Binding SaveCommand}">
-                    <TextBlock Text="&#xe930;" FontSize="16" FontFamily="Segoe Fluent Icons"/>
+                    <TextBlock Text="&#xe73e;" FontSize="16" FontFamily="Segoe Fluent Icons"/>
                 </Button>
             </StackPanel>
         </StackPanel>
