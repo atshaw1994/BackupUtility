@@ -1,11 +1,12 @@
 ﻿using System.Collections.ObjectModel;
+using System.Globalization;
 
 namespace BackupUtility.Models
 {
     public class BackupSchedule : BaseObject
     {
         public ObservableCollection<int> Hours { get; } = new(Enumerable.Range(1, 12));
-        public ObservableCollection<int> Minutes { get; } = new(Enumerable.Range(0, 60));
+        public ObservableCollection<string> Minutes { get; } = new(Enumerable.Range(0, 60).Select(i => i.ToString("D2")));
         public ObservableCollection<string> Meridiems { get; } = ["AM", "PM"];
 
         private bool _mondayEnabled;
@@ -116,11 +117,23 @@ namespace BackupUtility.Models
             get => _selectedMinute;
             set
             {
-                if (SetProperty(ref _selectedHour, value))
+                if (SetProperty(ref _selectedMinute, value))
                 {
                     UpdateBackupTime();
                     OnPropertyChanged(nameof(DebugDisplayString));
+                    SelectedMinuteString = _selectedMinute.ToString("D2");
                 }
+            }
+        }
+
+        private string _selectedMinuteString;
+        public string SelectedMinuteString
+        {
+            get => _selectedMinuteString;
+            set
+            {
+                if (SetProperty(ref _selectedMinuteString, value) && int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out int parsedMinute))
+                    SelectedMinute = parsedMinute;
             }
         }
 
@@ -147,7 +160,7 @@ namespace BackupUtility.Models
 
         public BackupSchedule()
         {
-            MondayEnabled = true;
+            MondayEnabled = false;
             TuesdayEnabled = false;
             WednesdayEnabled = false;
             ThursdayEnabled = false;
@@ -159,6 +172,9 @@ namespace BackupUtility.Models
             _selectedMeridiem = "AM";
 
             UpdateSelectedTimeProperties();
+
+            _selectedMinuteString = _selectedMinute.ToString("D2");
+
             OnPropertyChanged(nameof(DebugDisplayString));
         }
 
@@ -201,17 +217,17 @@ namespace BackupUtility.Models
 
         public void UpdateSelectedTimeProperties()
         {
-            int hour24 = BackupTime.Hours; // Get 24-hour format from BackupTime
+            int hour24 = BackupTime.Hours;
 
             if (hour24 >= 12)
             {
-                SelectedMeridiem = "PM";
-                _selectedHour = (hour24 == 12) ? 12 : hour24 - 12; // 12 PM is 12, 13-23 are 1-11 PM
+                _selectedMeridiem = "PM";
+                _selectedHour = (hour24 == 12) ? 12 : hour24 - 12;
             }
             else
             {
-                SelectedMeridiem = "AM";
-                _selectedHour = (hour24 == 0) ? 12 : hour24; // 0 AM (midnight) is 12 AM, 1-11 are 1-11 AM
+                _selectedMeridiem = "AM";
+                _selectedHour = (hour24 == 0) ? 12 : hour24;
             }
 
             _selectedMinute = BackupTime.Minutes;
@@ -220,6 +236,11 @@ namespace BackupUtility.Models
             OnPropertyChanged(nameof(SelectedHour));
             OnPropertyChanged(nameof(SelectedMinute));
             OnPropertyChanged(nameof(SelectedMeridiem));
+
+            // Set the string representation for the ComboBox
+            _selectedMinuteString = _selectedMinute.ToString("D2");
+            OnPropertyChanged(nameof(SelectedMinuteString));
+
             OnPropertyChanged(nameof(DebugDisplayString));
         }
 
@@ -237,8 +258,8 @@ namespace BackupUtility.Models
                         $"W: {(WednesdayEnabled ? "(T)" : "(F)")} " +
                         $"Th: {(ThursdayEnabled ? "(T)" : "(F)")} " +
                         $"F: {(FridayEnabled ? "(T)" : "(F)")} " +
-                        $"Sa: {(SaturdayEnabled ? "(T)" : "(F)")}\n" +
-                       $"Time: {timeString}";
+                        $"Sa: {(SaturdayEnabled ? "(T)" : "(F)")} " +
+                        $"Time: {timeString}";
             }
         }
 

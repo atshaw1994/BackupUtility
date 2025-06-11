@@ -4,28 +4,33 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BackupUtility"
+        xmlns:views="clr-namespace:BackupUtility.Views" 
         xmlns:viewmodels="clr-namespace:BackupUtility.ViewModels" 
         mc:Ignorable="d"
         WindowStyle="None"
         WindowStartupLocation="CenterScreen"
         Title="Backup Object"
-        Width="300"
+        Width="450"
         SizeToContent="Height"
         TextOptions.TextFormattingMode="Display"
         TextOptions.TextRenderingMode="ClearType"
-        Background="Transparent">
+        Background="Transparent"
+        Foreground="{DynamicResource Window.Foreground}">
     <d:Window.DataContext>
         <viewmodels:BackupObjectFormViewModel />
     </d:Window.DataContext>
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32" ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
     </WindowChrome.WindowChrome>
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Window.Resources>
     <Border Background="{DynamicResource Window.Background}"
             BorderBrush="{DynamicResource Window.Border}"
             BorderThickness="1"
             CornerRadius="8">
-        <StackPanel>
-            <Grid x:Name="CaptionBar" Margin="4,0,0,0">
+        <StackPanel Background="{DynamicResource Window.Background}">
+            <Grid x:Name="CaptionBar" Margin="4,0,0,0" Background="{DynamicResource Window.Background}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="24"/>
                     <ColumnDefinition/>
@@ -51,7 +56,7 @@
                           StrokeThickness="1" />
                 </Button>
             </Grid>
-            <StackPanel x:Name="ContentArea" Margin="8">
+            <StackPanel x:Name="ContentArea" Margin="8" Background="{DynamicResource Window.Background}">
                 <Grid x:Name="SourceGrid" Margin="0,8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="74"/>
@@ -68,6 +73,18 @@
                     <Label Content="Destination:" VerticalAlignment="Center" Foreground="{DynamicResource Window.Foreground}"/>
                     <ComboBox x:Name="DestinationComboBox" Grid.Column="1" IsEditable="True" SelectedItem="{Binding DestinationPath}" Text="{Binding DestinationPath}"/>
                 </Grid>
+                <StackPanel x:Name="CustomSchedulingPanel" Background="{DynamicResource Window.Background}" DataContext="{Binding CurrentBackupObject}" Height="32">
+                    <CheckBox x:Name="DateTimePickerVisibleCheckBox" 
+                              Content="Use Custom Schedule" 
+                              Foreground="{DynamicResource Window.Foreground}" 
+                              IsChecked="{Binding UsesCustomSchedule, Mode=TwoWay}" 
+                              Checked="DateTimePickerVisibleCheckBox_Checked"
+                              Unchecked="DateTimePickerVisibleCheckBox_Unchecked"/>
+                    <views:DateTimePicker x:Name="CustomDateTimePicker"
+                                          Schedule="{Binding}"
+                                          DataContext="{Binding Path=CustomSchedule}"
+                                          Visibility="{Binding ElementName=DateTimePickerVisibleCheckBox, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                </StackPanel>
                 <Button Padding="8" HorizontalAlignment="Right" Command="{Binding SaveCommand}">
                     <TextBlock Text="&#xe930;" FontSize="16" FontFamily="Segoe Fluent Icons"/>
                 </Button>
