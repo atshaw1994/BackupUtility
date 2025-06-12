@@ -202,6 +202,20 @@ namespace BackupUtility.Models
             return selectedDays;
         }
 
+        public bool IsTodayEnabled() =>
+            // Implement logic to check if current day of week is enabled
+            DateTime.Now.DayOfWeek switch
+            {
+                DayOfWeek.Sunday => SundayEnabled,
+                DayOfWeek.Monday => MondayEnabled,
+                DayOfWeek.Tuesday => TuesdayEnabled,
+                DayOfWeek.Wednesday => WednesdayEnabled,
+                DayOfWeek.Thursday => ThursdayEnabled,
+                DayOfWeek.Friday => FridayEnabled,
+                DayOfWeek.Saturday => SaturdayEnabled,
+                _ => false,
+            };
+
         private void UpdateBackupTime()
         {
             int hour24 = SelectedHour;
