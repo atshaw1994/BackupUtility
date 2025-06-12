@@ -40,6 +40,12 @@
             get => _customSchedule;
             set => SetProperty(ref _customSchedule, value);
         }
+        private DateTime? _lastBackupTime;
+        public DateTime? LastBackupTime
+        {
+            get => _lastBackupTime;
+            set => SetProperty(ref _lastBackupTime, value);
+        }
 
         public BackupObject()
         {
