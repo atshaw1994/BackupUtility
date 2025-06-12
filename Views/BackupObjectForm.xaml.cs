@@ -186,17 +186,13 @@ namespace BackupUtility.Views
         private void DateTimePickerVisibleCheckBox_Checked(object sender, RoutedEventArgs e)
         {
             DoubleAnimation heightAnim = new(152, TimeSpan.FromSeconds(0.2));
-            DoubleAnimation opacityAnim = new(1, TimeSpan.FromSeconds(0.2));
             CustomSchedulingPanel.BeginAnimation(HeightProperty, heightAnim);
-            CustomSchedulingPanel.BeginAnimation(OpacityProperty, opacityAnim);
         }
 
         private void DateTimePickerVisibleCheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
             DoubleAnimation heightAnim = new(32, TimeSpan.FromSeconds(0.2));
-            DoubleAnimation opacityAnim = new(0, TimeSpan.FromSeconds(0.2));
             CustomSchedulingPanel.BeginAnimation(HeightProperty, heightAnim);
-            CustomSchedulingPanel.BeginAnimation(OpacityProperty, opacityAnim);
         }
     }
 }

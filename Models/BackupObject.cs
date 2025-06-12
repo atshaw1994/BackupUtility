@@ -18,7 +18,7 @@
         private bool _isFirst;
         public bool IsFirst
         {
-            get { return _isFirst; }
+            get => _isFirst;
             set
             {
                 if (_isFirst != value)

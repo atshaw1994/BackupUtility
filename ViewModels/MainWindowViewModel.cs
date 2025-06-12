@@ -3,9 +3,7 @@ using BackupUtility.Models;
 using BackupUtility.Services.Interfaces;
 using BackupUtility.Views;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
-using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -13,7 +11,19 @@ namespace BackupUtility.ViewModels
 {
     public class MainWindowViewModel : BaseViewModel
     {
-        public ObservableCollection<BackupObject> BackupObjects { get; set; }
+        private ObservableCollection<BackupObject> _backupObjects;
+        public ObservableCollection<BackupObject> BackupObjects
+        {
+            get => _backupObjects;
+            set => SetProperty(ref _backupObjects, value);
+        }
+
+        private BackupSchedule _globalBackupSchedule;
+        public BackupSchedule GlobalBackupSchedule
+        {
+            get => _globalBackupSchedule;
+            set => SetProperty(ref _globalBackupSchedule, value);
+        }
 
         private DriveInfo? _backupDrive;
         public DriveInfo? BackupDrive
@@ -113,7 +123,7 @@ namespace BackupUtility.ViewModels
 
         // --- Other private fields ---
         private CancellationTokenSource? _backupCancellationTokenSource;
-        private readonly DispatcherTimer _backupSchedulerTimer;
+        private readonly DispatcherTimer _backupScheduleTimer;
 
         private bool _isInitializing;
 
@@ -146,15 +156,19 @@ namespace BackupUtility.ViewModels
             BackupObjects = [];
             _drivesList = [];
 
+            // Initialize global schedule (load from persistence or default)
+            GlobalBackupSchedule = new BackupSchedule();
+            LoadGlobalSchedule();
+
             // Initialize other simple properties
             _statusMessage = "";
             IsBackupInProgress = false;
             _backupProgress = 0;
 
             // Initialize and Start the Scheduler Timer
-            _backupSchedulerTimer = new() { Interval = TimeSpan.FromSeconds(1) };
-            _backupSchedulerTimer.Tick += BackupSchedulerTimer_Tick;
-            _backupSchedulerTimer.Start();
+            _backupScheduleTimer = new() { Interval = TimeSpan.FromSeconds(1) };
+            _backupScheduleTimer.Tick += BackupScheduleTimer_Tick;
+            _backupScheduleTimer.Start();
 
             // Perform initial async loading
             InitializeDataAsync();
@@ -212,13 +226,43 @@ namespace BackupUtility.ViewModels
             }
         }
 
-        private void BackupSchedulerTimer_Tick(object? sender, EventArgs e)
+        private void BackupScheduleTimer_Tick(object? sender, EventArgs e)
         {
-            // FUTURE: Custom backup scheduling
+            DateTime now = DateTime.Now;
 
-            if (BackupTime != TimeSpan.Zero && DateTime.Now.TimeOfDay >= BackupTime && !IsBackupInProgress)
-                if (StartBackupCommand != null && StartBackupCommand.CanExecute(null))
-                    StartBackupCommand.Execute(null);
+            foreach (BackupObject backupObject in BackupObjects)
+            {
+                if (backupObject.UsesCustomSchedule)
+                {
+                    bool isTimeReached = now.TimeOfDay >= backupObject.CustomSchedule.BackupTime;
+                    bool isTodayEnabled = backupObject.CustomSchedule.IsTodayEnabled();
+
+                    bool hasBackupBeenPerformedToday = backupObject.LastBackupTime.HasValue &&
+                                                       backupObject.LastBackupTime.Value.Date == now.Date &&
+                                                       backupObject.LastBackupTime.Value.TimeOfDay >= backupObject.CustomSchedule.BackupTime;
+
+                    if (isTimeReached && isTodayEnabled && !hasBackupBeenPerformedToday && !IsBackupInProgress)
+                    {
+                        // Perform backup on BackupObject
+                    }
+
+                }
+                else
+                {
+                    bool isTimeReached = now.TimeOfDay >= GlobalBackupSchedule.BackupTime;
+                    bool isTodayEnabled = GlobalBackupSchedule.IsTodayEnabled();
+
+                    // Check if backup has not been performed TODAY for this object
+                    bool hasBackupBeenPerformedToday = backupObject.LastBackupTime.HasValue &&
+                                                      backupObject.LastBackupTime.Value.Date == now.Date &&
+                                                      backupObject.LastBackupTime.Value.TimeOfDay >= GlobalBackupSchedule.BackupTime;
+
+                    if (isTimeReached && isTodayEnabled && !hasBackupBeenPerformedToday && !IsBackupInProgress)
+                    {
+                        // Perform backup on BackupObject
+                    }
+                }
+            }
         }
 
         private async Task LoadBackupObjectsAsync()
@@ -233,6 +277,22 @@ namespace BackupUtility.ViewModels
                 if (BackupObjects.Count > 0)
                     BackupObjects[0].IsFirst = true;
             });
+        }
+
+        private void LoadGlobalSchedule()
+        {
+            // TODO: Implement loading GlobalBackupSchedule from a specific settings file
+            // Example:
+            // GlobalBackupSchedule = _settingsService.LoadGlobalSchedule();
+            // For testing:
+            GlobalBackupSchedule.BackupTime = new(6,0,0);
+            GlobalBackupSchedule.MondayEnabled = true;
+            GlobalBackupSchedule.TuesdayEnabled = true;
+            GlobalBackupSchedule.WednesdayEnabled = true;
+            GlobalBackupSchedule.ThursdayEnabled = true;
+            GlobalBackupSchedule.FridayEnabled = true;
+            GlobalBackupSchedule.SaturdayEnabled = false;
+            GlobalBackupSchedule.SundayEnabled = false;
         }
 
         private void CancelBackup(object? parameter = null!) => _backupCancellationTokenSource?.Cancel();

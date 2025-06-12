@@ -124,16 +124,13 @@
                         <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xedab;" FontSize="16"/>
                     </Button>
                 </Grid>
-                <Grid x:Name="BackupTimeGrid">
+                <Grid x:Name="BackupScheduleGrid">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
-                        <RowDefinition Height="32"/>
+                        <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
-                    <Label Content="Backup Time" Foreground="{DynamicResource Window.Foreground}"/>
-                    <Button x:Name="BackupTimeButton"
-                            Grid.Row="1"
-                            Content="{Binding BackupTime, StringFormat='Backup at {0:hh\\:mm tt}'}"
-                            Command="{Binding EditBackupTimeCommand}"/>
+                    <Label Content="Backup Schedule" Foreground="{DynamicResource Window.Foreground}"/>
+                    <local:DateTimePicker Grid.Row="1"/>
                 </Grid>
                 <Grid x:Name="ListViewGrid">
                     <Grid.RowDefinitions>
@@ -189,6 +186,7 @@
             </Grid>
             <Border x:Name="InProgressOverlay"
                     Background="#000000"
+                    d:Visibility="Collapsed"
                     Opacity="0.8"
                     Grid.Row="1"
                     Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"/>
