@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:BackupUtility.Views"
         xmlns:vm="clr-namespace:BackupUtility.ViewModels"
         xmlns:converters="clr-namespace:BackupUtility.Converters"
+        xmlns:helpers="clr-namespace:BackupUtility.Helpers"
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:io="clr-namespace:System.IO;assembly=System.Runtime"
         mc:Ignorable="d"
@@ -35,7 +36,7 @@
             BorderBrush="{DynamicResource Window.Border}" 
             BorderThickness="1"
             CornerRadius="8">
-        <Grid x:Name="baseGrid">
+        <Grid x:Name="baseGrid" Background="{DynamicResource Window.Background}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="32"/>
                 <RowDefinition/>
@@ -124,13 +125,17 @@
                         <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xedab;" FontSize="16"/>
                     </Button>
                 </Grid>
-                <Grid x:Name="BackupScheduleGrid">
+                <Grid x:Name="BackupScheduleGrid" Margin="0,8,0,4">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
-                        <RowDefinition Height="auto"/>
+                        <RowDefinition x:Name="BackupScheduleRow" Style="{DynamicResource BackupScheduleRow}"/>
                     </Grid.RowDefinitions>
-                    <Label Content="Backup Schedule" Foreground="{DynamicResource Window.Foreground}"/>
-                    <local:DateTimePicker Grid.Row="1"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Backup Schedule" Foreground="{DynamicResource Window.Foreground}"/>
+                        <ToggleButton x:Name="ShowHideBackupSchedulePanel"
+                                      Style="{DynamicResource CollapseToggleButton}"/>
+                    </StackPanel>
+                    <local:DateTimePicker DataContext="{Binding GlobalBackupSchedule}" Grid.Row="1"/>
                 </Grid>
                 <Grid x:Name="ListViewGrid">
                     <Grid.RowDefinitions>
@@ -162,25 +167,23 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <ProgressBar x:Name="BackupProgessBar"
-                                 Value="{Binding BackupProgress}"
-                                 Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                <TextBlock Text="{Binding BackupProgress, StringFormat={}{0}%}"
-                               Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
-                               Foreground="{DynamicResource Window.Foreground}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
+                             d:Value="50"
+                             Value="{Binding BackupProgress}"
+                             Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                 <Button x:Name="StartBackupButton"
-                            Style="{DynamicResource StartCancelBackupButton}"
-                            Grid.Column="1"
-                            Visibility="{Binding IsIdle, Converter={StaticResource BooleanToVisibilityConverter}}"
-                            Command="{Binding StartBackupCommand}">
+                        ToolTip="Start Manual Backup"
+                        Style="{DynamicResource StartCancelBackupButton}"
+                        Grid.Column="1"
+                        Visibility="{Binding IsIdle, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Command="{Binding StartBackupCommand}">
                     <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xedda;" FontSize="16"/>
                 </Button>
                 <Button x:Name="CancelBackupButton"
-                            Style="{DynamicResource StartCancelBackupButton}"
-                            Grid.Column="1"
-                            Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
-                            Command="{Binding CancelBackupCommand}">
+                        Style="{DynamicResource StartCancelBackupButton}"
+                        Grid.Column="1"
+                        d:Visibility="Collapsed"
+                        Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Command="{Binding CancelBackupCommand}">
                     <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xf78a;" FontSize="16"/>
                 </Button>
             </Grid>

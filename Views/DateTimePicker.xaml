@@ -6,7 +6,6 @@
              xmlns:local="clr-namespace:BackupUtility.Views"
              xmlns:models="clr-namespace:BackupUtility.Models"
              mc:Ignorable="d" 
-             Background="{DynamicResource Window.Background}"
              Foreground="{DynamicResource Window.Foreground}"
              HorizontalAlignment="Center" VerticalAlignment="Center"
              x:Name="ThisDateTimePickerControl">

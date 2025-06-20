@@ -45,9 +45,9 @@
     <SolidColorBrush x:Key="Element.Background.Pressed" Color="#3f3f3f"/>
     <Color x:Key="Element.Background.Pressed.Color">#3f3f3f</Color>
     <SolidColorBrush x:Key="Element.Background.Disabled" Color="#08ffffff"/>
-    <LinearGradientBrush x:Key="Element.Border.Normal" StartPoint="0.5,0" EndPoint="0.5,1.0">
+    <LinearGradientBrush x:Key="Element.Border.Normal" StartPoint="0,0" EndPoint="1.0,1.0">
         <GradientStop Color="#30ffffff" Offset="0.0"/>
-        <GradientStop Color="#05000000" Offset="1.0"/>
+        <GradientStop Color="#10000000" Offset="1.0"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="Element.Border.MouseOver" StartPoint="0.5,0" EndPoint="0.5,1.0">
         <GradientStop Color="#3f4146" Offset="0.0"/>

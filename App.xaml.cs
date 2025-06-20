@@ -6,6 +6,7 @@ using BackupUtility.Services.Implementations;
 using BackupUtility.ViewModels;
 using BackupUtility.Views;
 using BackupUtility.Properties;
+using BackupUtility.Models;
 
 namespace BackupUtility
 {
@@ -15,6 +16,7 @@ namespace BackupUtility
     public partial class App : Application
     {
         private readonly IHost _host;
+        public BackupSchedule GlobalBackupSchedule;
 
         public App()
         {
@@ -38,6 +40,8 @@ namespace BackupUtility
 
                 })
                 .Build();
+
+            GlobalBackupSchedule = new();
         }
 
         protected override async void OnStartup(StartupEventArgs e)
