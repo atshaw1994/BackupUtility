@@ -98,7 +98,6 @@
     <Style x:Key="{x:Type ProgressBar}" TargetType="{x:Type ProgressBar}">
         <Setter Property="Minimum" Value="0"/>
         <Setter Property="Maximum" Value="100"/>
-        <Setter Property="Opacity" Value="0.5"/>
         <Setter Property="MinHeight" Value="14"/>
         <Setter Property="Margin" Value="0,0,8,0"/>
         <Setter Property="Template">
@@ -107,13 +106,20 @@
                     <Grid MinHeight="8" MinWidth="200">
                         <Border x:Name="PART_Track" 
                                 CornerRadius="6"
+                                Background="{DynamicResource ProgressBar.Track.Background}"
                                 BorderBrush="{DynamicResource ProgressBar.Track.Border}" 
-                                BorderThickness="1">
+                                BorderThickness="2">
                             <Border x:Name="PART_Indicator"
                                     CornerRadius="5.5,0,0,5.5"
                                     HorizontalAlignment="Left"
-                                    Background="{DynamicResource ProgressBar.Track.Fill}"
-                                    Opacity="0.8"/>
+                                    Background="{DynamicResource ProgressBar.Track.Fill}">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="2" 
+                                                      ShadowDepth="2" 
+                                                      Direction="0" 
+                                                      Color="Black"/>
+                                </Border.Effect>
+                            </Border>
                         </Border>
                         <TextBlock Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Value, StringFormat={}{0:F0}%}"
                                    Foreground="{DynamicResource Window.Foreground}"
@@ -955,14 +961,14 @@
                 <DataTrigger.EnterActions>
                     <BeginStoryboard>
                         <Storyboard>
-                            <helpers:GridLengthAnim Storyboard.TargetProperty="Height" From="0" To="128" Duration="0:0:0.3"/>
+                            <helpers:GridLengthAnim Storyboard.TargetProperty="Height" From="0" To="120" Duration="0:0:0.3"/>
                         </Storyboard>
                     </BeginStoryboard>
                 </DataTrigger.EnterActions>
                 <DataTrigger.ExitActions>
                     <BeginStoryboard>
                         <Storyboard>
-                            <helpers:GridLengthAnim Storyboard.TargetProperty="Height" From="128" To="0" Duration="0:0:0.3"/>
+                            <helpers:GridLengthAnim Storyboard.TargetProperty="Height" From="120" To="0" Duration="0:0:0.3"/>
                         </Storyboard>
                     </BeginStoryboard>
                 </DataTrigger.ExitActions>

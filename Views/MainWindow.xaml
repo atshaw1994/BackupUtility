@@ -125,18 +125,6 @@
                         <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xedab;" FontSize="16"/>
                     </Button>
                 </Grid>
-                <Grid x:Name="BackupScheduleGrid" Margin="0,8,0,4">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto"/>
-                        <RowDefinition x:Name="BackupScheduleRow" Style="{DynamicResource BackupScheduleRow}"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="Backup Schedule" Foreground="{DynamicResource Window.Foreground}"/>
-                        <ToggleButton x:Name="ShowHideBackupSchedulePanel"
-                                      Style="{DynamicResource CollapseToggleButton}"/>
-                    </StackPanel>
-                    <local:DateTimePicker DataContext="{Binding GlobalBackupSchedule}" Grid.Row="1"/>
-                </Grid>
                 <Grid x:Name="ListViewGrid">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -159,6 +147,19 @@
                             </GridView>
                         </ListView.View>
                     </ListView>
+                </Grid>
+                <Grid x:Name="BackupScheduleGrid" Margin="0,8,0,4">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition x:Name="BackupScheduleRow" Style="{DynamicResource BackupScheduleRow}"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Backup Schedule" Foreground="{DynamicResource Window.Foreground}"/>
+                        <ToggleButton x:Name="ShowHideBackupSchedulePanel"
+                                      d:IsChecked="True"
+                                      Style="{DynamicResource CollapseToggleButton}"/>
+                    </StackPanel>
+                    <local:DateTimePicker DataContext="{Binding GlobalBackupSchedule}" Grid.Row="1"/>
                 </Grid>
             </StackPanel>
             <Grid x:Name="ProcedureControls" Margin="8" Grid.Row="2">

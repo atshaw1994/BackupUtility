@@ -70,8 +70,9 @@
     <SolidColorBrush x:Key="TextBox.Background" Color="Transparent"/>
     <SolidColorBrush x:Key="TextBox.Border" Color="#10ffffff"/>
 
-    <SolidColorBrush x:Key="ProgressBar.Track.Fill" Color="#40ffffff"/>
-    <SolidColorBrush x:Key="ProgressBar.Track.Border" Color="#20ffffff"/>
+    <SolidColorBrush x:Key="ProgressBar.Track.Fill" Color="#20ffffff"/>
+    <SolidColorBrush x:Key="ProgressBar.Track.Background" Color="#10ffffff"/>
+    <SolidColorBrush x:Key="ProgressBar.Track.Border" Color="#30000000"/>
 
     <SolidColorBrush x:Key="ListView.Border" Color="#30000000"/>
     <Thickness x:Key="ListView.Border.BorderThickness">2,2,2,0</Thickness>
